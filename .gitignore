@@ -1,0 +1,27 @@
+# Secrets — never committed
+.env
+.env.*
+.dev.vars
+*.pem
+*.key
+
+# Reports and generated runs
+hackatons/meta/output/
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Logs
+*.log

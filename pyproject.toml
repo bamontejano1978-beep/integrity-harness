@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "behavioural-autopilot"
+version = "0.0.1"
+description = "Behavioral Autopilot: contractual remediation for LLM-piloted systems."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "LicenseRef-Proprietary"
+authors = [{ name = "Ruben" }]
+keywords = ["llm", "behavioral-contracts", "remediation", "autonomy-recovery", "incidents"]
+
+dependencies = [
+    "cryptography>=45.0,<47",
+    "pydantic>=2.7,<3",
+    "PyYAML>=6.0,<7",
+]
+
+[project.scripts]
+behavioural-autopilot = "autopilot.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2,<2",
+    "pytest>=7.0,<10",
+    "pytest-cov>=4,<8",
+    "ruff>=0.6.9,<0.7",
+    "mypy>=1.10,<3",
+]
+saas = [
+    "fastapi>=0.115,<1",
+    "httpx>=0.27,<1",
+    "itsdangerous>=2.2,<3",
+    "uvicorn>=0.30,<1",
+]
+jev = [
+    "typesafe-sdk>=0.7,<1",
+]
+docs = ["mkdocs>=1.5", "mkdocs-material"]
+
+[project.urls]
+Source = "https://github.com/bamontejano1978-beep/behavioural-autopilot"
+Issues = "https://github.com/bamontejano1978-beep/behavioural-autopilot/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-p no:asyncio --basetemp=.pytest_tmp"
