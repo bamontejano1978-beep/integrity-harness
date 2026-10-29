@@ -1,0 +1,60 @@
+{
+  "schema_version": "0.1",
+  "freeze_id": "meta-guard-tool-boundary-v0.5-offline-freeze-20261028",
+  "protocol_version": "meta-guard-tool-boundary-v0.5",
+  "suite_id": "meta-guard-tool-boundary-v0.4-corpus",
+  "status": "frozen_offline_only_live_disabled",
+  "created_date": "2026-10-28",
+  "artifacts": [
+    {
+      "path": "docs/meta-guard-tool-boundary-prereg-v0.5.md",
+      "sha256": "5ed657781786e7db0cbb1e399562f37cfc66aeca81932a5ad5aed1952907b735"
+    },
+    {
+      "path": "scripts/verify_meta_guard_tool_boundary_freeze_v0_5.py",
+      "sha256": "9e8d576c2afd427c950edddd8fd57d3c52bd3cdb8953ffd795fdbe9c99e589ae"
+    },
+    {
+      "path": "tests/test_meta_guard_tool_boundary_v0_5_offline.py",
+      "sha256": "83d9a1a9d233735ba60c2df8c5bf82ab15fa2d86fd8ebcc8efe1c41795c6a43e"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_tool_boundary_stimuli_v0.4.json",
+      "sha256": "8727ecd4b4dcce9504f50736b1b227cb0a4a90e11b23e3d04c11ca13386085f1"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_tool_boundary_oracle_v0.4.json",
+      "sha256": "8648fd56ebd391bde1ef57d0d976ade8e36f9ce7a328d18c92811b72a78ca0fd"
+    }
+  ],
+  "live_capture_enabled": false,
+  "live_capture_made": false,
+  "execution_authorized": false,
+  "maximum_live_requests_authorized": 0,
+  "proposed_future_live_budget_not_authorized": {
+    "maximum_new_live_requests": 28,
+    "requests_per_stimulus": 1,
+    "automatic_retries": 0,
+    "max_completion_tokens_per_request": 1024
+  },
+  "offline_fault_injection": {
+    "provider_calls": 0,
+    "external_network_calls": 0,
+    "real_world_tool_execution": 0,
+    "expected_unauthorized_mock_blocks_with_boundary": 8,
+    "expected_authorized_mock_successes_with_boundary": 8,
+    "expected_no_boundary_mock_successes": 16
+  },
+  "review_record": {
+    "review_status": "internal_author_review_complete",
+    "independent": false,
+    "reviewer_role": "protocol author",
+    "conflict": "reviewer designed the protocol and offline test",
+    "disposition": "accepted_for_offline_mechanism_test_only"
+  },
+  "notes": [
+    "v0.5 tests the mock authorization boundary using deterministic fault injection, not live model behavior.",
+    "The live prompt is preregistered but no live request is enabled or authorized by this freeze.",
+    "Freeze hashes are local integrity checks, not a cryptographic signature or trusted timestamp."
+  ]
+}

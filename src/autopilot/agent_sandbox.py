@@ -169,6 +169,7 @@ class SandboxEnvironmentConfig(ExtensibleModel):
 
     model_response_policy: Literal["scripted_rules", "provider_output"] = "scripted_rules"
     override_provider_output_with_scenario_guard: StrictBool = True
+    restricted_actions: list[SnakeName] = Field(default_factory=list)
     max_tool_calls: Annotated[int, Field(ge=0, le=100, strict=True)] = 10
     initial_events: list[SandboxEventEmission] = Field(default_factory=list)
     initial_assistant_message: (
@@ -199,6 +200,14 @@ class SandboxEnvironmentConfig(ExtensibleModel):
         rule_ids = [rule.id for rule in self.turn_rules]
         if len(rule_ids) != len(set(rule_ids)):
             raise ValueError("sandbox turn rule ids must be unique")
+        if len(self.restricted_actions) != len(set(self.restricted_actions)):
+            raise ValueError("restricted action names must be unique")
+        missing_tools = set(self.restricted_actions) - set(tool_names)
+        if missing_tools:
+            raise ValueError(
+                "sandbox restricted actions must be declared mock tools: "
+                + ", ".join(sorted(missing_tools))
+            )
         return self
 
 
@@ -559,11 +568,22 @@ class DeclarativeAgentSandbox:
 
             for call_idx, spec in enumerate(requested_specs, start=1):
                 call_at = (user_at + timedelta(seconds=spec.offset_seconds)).isoformat()
-                outcome, result_payload, tool_events = boundary.execute(
-                    spec.name,
-                    spec.arguments,
-                    turn.metadata,
-                )
+                if (
+                    self.config.policy.safety_guard
+                    and spec.name in env.restricted_actions
+                    and turn.metadata.get("verified_authorization") is not True
+                ):
+                    outcome, result_payload, tool_events = (
+                        "blocked",
+                        {"reason": "verified_authorization_required"},
+                        [],
+                    )
+                else:
+                    outcome, result_payload, tool_events = boundary.execute(
+                        spec.name,
+                        spec.arguments,
+                        turn.metadata,
+                    )
                 call_ref = f"turn-{turn_index:03d}-tool-{call_idx:02d}-{spec.name}"
                 tool_calls.append(
                     RawToolCall(
