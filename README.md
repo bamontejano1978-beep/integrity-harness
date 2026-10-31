@@ -79,6 +79,14 @@ python -m pip install -r offline_verifier/requirements.txt
 python demo_app.py
 ```
 
+Without a Meta API key the app still starts and offers the offline path first.
+Two further entry points need no key:
+
+```bash
+python scripts/judge_check.py      # verify the signed package and the tamper test
+python scripts/clause_matrix.py    # rebuild docs/clause_matrix.md from stored reports
+```
+
 The live run is opt-in through the button. It uses three turns in each of two
 arms, a hard cap of six provider requests, 1,024 completion tokens, a 25-second
 per-call timeout, no automatic retries, and local mock tools. A persistent

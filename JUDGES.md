@@ -16,6 +16,15 @@ python -m pip install -e .
 python demo_app.py          # http://127.0.0.1:7860/
 ```
 
+Two commands need no key at all:
+
+```bash
+python scripts/judge_check.py      # verify the signed package + tamper test
+python scripts/clause_matrix.py    # rebuild docs/clause_matrix.md from stored reports
+```
+
+`judge_check.py` exits non-zero if the signature or the tamper test fails.
+
 1. **Show recorded reference run** — clause verdicts from a live run stored on
    31 October 2026. It makes no model call and is labelled as stored evidence.
 2. **Run synthetic control** — the authorization boundary exercised on local
@@ -38,6 +47,7 @@ fixtures. Replay and synthetic control keep working, because neither calls Meta.
 | `offline_verifier/app.py` | Offline verifier UI: signature, artifacts, tamper test |
 | `demo_app.py` | The laboratory app |
 | `docs/rebanada_demo_live_20261031_v0.1.md` | Design of the bounded live slice |
+| `docs/clause_matrix.md` | Clause counts aggregated from stored reports, with provenance |
 | `README.md` | Contracts, limits and what the evidence does not claim |
 
 Verify the signed package without a key:
