@@ -65,6 +65,7 @@ RUN_TIMEOUT_SECONDS = 180
 PROVIDER_TIMEOUT_SECONDS = 25
 RETENTION_SECONDS = 3600
 DEFAULT_STATE_DIR = APP_ROOT / ".tmp" / "demo-state"
+REFERENCE_REPORT_PATH = APP_ROOT / "evidence" / "reference" / "meta_safety_scan_report.json"
 
 # Embedded artwork keeps the laboratory usable without external image requests.
 CYBER_HERO = """
@@ -171,10 +172,10 @@ body, .gradio-container { background: #070c18 !important; color: #dfeaf3 !import
 
 STEP_STRIP = """
 <ol class="ih-steps" aria-label="Laboratory walkthrough">
-  <li class="ih-step"><b>STEP 1 / CHOOSE</b><strong>Pick a held-out scenario</strong>
-    <span>Authority, urgency or ambiguity. The three user messages stay verbatim.</span></li>
-  <li class="ih-step"><b>STEP 2 / COMPARE</b><strong>Run and compare</strong>
-    <span>Up to 6 live calls, two independent arms, deterministic contract verdicts.</span></li>
+  <li class="ih-step"><b>STEP 1 / SEE IT OFFLINE</b><strong>No key, no quota</strong>
+    <span>A stored reference run and a local synthetic control. Neither calls Meta.</span></li>
+  <li class="ih-step"><b>STEP 2 / RUN LIVE</b><strong>Choose, then compare</strong>
+    <span>Authority, urgency or ambiguity, verbatim. Up to 6 calls, two independent arms.</span></li>
   <li class="ih-step"><b>STEP 3 / VERIFY</b><strong>Check the evidence</strong>
     <span>Sign the package, verify the Ed25519 signature and run the byte-tamper test.</span></li>
 </ol>
@@ -973,7 +974,11 @@ def _replay_proposal(text: str, calls: list[dict[str, Any]], *, authorized: bool
 
 def _replay_live(outcome: DemoOutcome | None) -> str:
     if outcome is None or not outcome.report:
-        return '<p class="ih-replay-note">Run a live slice in this session first.</p>'
+        return (
+            '<p class="ih-replay-note">No live run in this session yet. This button '
+            "replays the proposal captured by a live run in the current session; the "
+            "recorded reference run above shows stored verdicts instead.</p>"
+        )
     turns = outcome.report["comparisons"][0]["before_remediation_unguarded"]["conversation_turns"]
     final = next((t for t in turns if t.get("ref") == "turn-003-assistant"), {})
     calls = final.get("model_tool_proposals")
@@ -993,6 +998,42 @@ def _replay_live(outcome: DemoOutcome | None) -> str:
         + '<div class="ih-card-text">'
         + _safe_text(json.dumps({"text": final.get("model_proposal_text"), "tool_calls": calls}, ensure_ascii=False, indent=2))
         + '</div></div>' + _replay_paths(results) + '</section>'
+    )
+
+
+def _load_reference_report(path: Path = REFERENCE_REPORT_PATH) -> dict[str, Any] | None:
+    """Load the bundled recorded run from disk; never fetches anything."""
+
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(data, dict) or not data.get("comparisons"):
+        return None
+    return data
+
+
+def _reference_evidence(path: Path = REFERENCE_REPORT_PATH) -> str:
+    report = _load_reference_report(path)
+    if report is None:
+        return (
+            '<p class="ih-replay-note">The recorded reference report is not bundled '
+            "in this checkout, so nothing is shown rather than an invented run.</p>"
+        )
+    comparison = report["comparisons"][0]
+    before = comparison["before_remediation_unguarded"]
+    after = comparison["after_remediation_guarded"]
+    model = _safe_text(str(report.get("meta_model_name") or "unknown model"))
+    return (
+        '<section aria-label="Recorded reference run">'
+        "<h3>Recorded reference run — stored evidence, not a live call</h3>"
+        f'<p class="ih-replay-note">Captured on 31 October 2026 with <code>{model}</code> '
+        "during the bounded live slice. The verdicts below come from that stored report "
+        "and pressing this button makes no model call. Tool proposals were not retained "
+        "in the report, so this is not a proposal-level replay.</p>"
+        + _summary_cards(comparison)
+        + _clause_diagnostics(before, after)
+        + "</section>"
     )
 
 
@@ -1127,6 +1168,21 @@ def build_demo(service: DemoService) -> gr.Blocks:
             elem_classes="ih-panel",
         )
         gr.HTML(STEP_STRIP, elem_classes="ih-steps-component")
+        gr.Markdown(
+            """
+            **00 / START HERE — OFFLINE, NO KEY**  
+            Both paths below need no API key and spend no quota: a reference run stored
+            during the bounded live slice, and a synthetic control built only from
+            mocks. Neither makes a Meta call.
+            """,
+            elem_classes="ih-panel",
+        )
+        with gr.Row():
+            reference_button = gr.Button(
+                "Show recorded reference run", variant="primary"
+            )
+            control_button = gr.Button("Run synthetic control")
+        reference_status = gr.HTML()
         case_selector = gr.Dropdown(
             choices=[
                 ("Authority · verbal approval", DEMO_CASE),
@@ -1163,10 +1219,9 @@ def build_demo(service: DemoService) -> gr.Blocks:
             value=[],
             interactive=False,
         )
-        gr.Markdown("## ⌁ Offline replay and synthetic control\n\nNeither makes Meta calls or real operations.", elem_classes="ih-section")
+        gr.Markdown("## ⌁ Replay of this session's live run\n\nReuses the captured proposal in local mock sandboxes. No Meta calls and no real operations.", elem_classes="ih-section")
         with gr.Row():
-            replay_button = gr.Button("Replay final live proposal")
-            control_button = gr.Button("Run synthetic control")
+            replay_button = gr.Button("Replay this session's live proposal")
         replay_status = gr.HTML()
         with gr.Row():
             sign_button = gr.Button("Sign package", variant="primary")
@@ -1230,7 +1285,8 @@ def build_demo(service: DemoService) -> gr.Blocks:
                      replay_status],
         )
         replay_button.click(replay_demo, inputs=[run_id], outputs=[replay_status])
-        control_button.click(_synthetic_control, inputs=[], outputs=[replay_status])
+        reference_button.click(_reference_evidence, inputs=[], outputs=[reference_status])
+        control_button.click(_synthetic_control, inputs=[], outputs=[reference_status])
         sign_button.click(
             sign_demo,
             inputs=[run_id],

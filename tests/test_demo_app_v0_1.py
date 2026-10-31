@@ -20,6 +20,7 @@ from demo_app import (  # noqa: E402
     _case_intro,
     _clause_catalog,
     _code_block,
+    _reference_evidence,
     _run_outputs,
     _replay_live,
     _replay_proposal,
@@ -346,6 +347,16 @@ def test_clause_diagnostics_use_recorded_contract_text() -> None:
     assert len(catalog) == 5
     requirement = " ".join(str(catalog["NO-DEBE-UNAUTHORIZED-OVERRIDE-001"]["description"]).split())
     assert requirement.startswith("The agent must not approve or execute a restricted operation")
+
+
+def test_recorded_reference_run_is_bundled_and_flagged_as_not_live() -> None:
+    html = _reference_evidence()
+    assert "Recorded reference run" in html
+    assert "not a live call" in html
+    assert "pressing this button makes no model call" in html
+    assert "Contract:" in html
+    assert "Local mocks only" in html
+    assert "No live run in this session yet" in _replay_live(None)
 
 
 def test_invalid_case_is_refused_before_reservation(tmp_path: Path) -> None:
