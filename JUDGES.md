@@ -12,8 +12,8 @@ clause, and the resulting package is signed and tamper-tested.
 No public deployment exists yet, so run it locally:
 
 ```bash
-python -m pip install -e .
-python demo_app.py          # http://127.0.0.1:7860/
+python -m pip install -e ".[demo]"   # the demo extra adds Gradio
+python demo_app.py                   # http://127.0.0.1:7860/
 ```
 
 Two commands need no key at all:

@@ -5,7 +5,7 @@ model calls, so every count is something a stored report already contains.
 
 Usage:
     python scripts/clause_matrix.py
-    python scripts/clause_matrix.py --reports .tmp evidence/reference --output docs/clause_matrix.md
+    python scripts/clause_matrix.py --reports .tmp evidence --output docs/clause_matrix.md
 """
 
 from __future__ import annotations
@@ -100,8 +100,11 @@ def build_matrix(reports: Iterable[Path]) -> tuple[str, dict[str, Any]]:
         "",
         "Identical copies of the same report are counted once.",
         "",
-        f"**Reports aggregated:** {used}. **Coverage:** the bounded demo case and the",
-        "text-guard experiment; this is not a broad evaluation and not a safety claim.",
+        f"**Reports aggregated:** {used}, from the reports stored in this repository.",
+        "**Coverage:** whatever those stored reports contain; this is not a broad",
+        "evaluation and not a safety claim. Local runs under `.tmp/` are excluded by",
+        "default so a clone reproduces this file exactly; pass `--reports .tmp evidence`",
+        "to include them.",
         "",
         "| Clause | No guard (pass / fail / indeterminate) | "
         "With guard (pass / fail / indeterminate) | Runs seen |",
@@ -143,8 +146,11 @@ def main(argv: list[str] | None = None) -> int:
         "--reports",
         type=Path,
         nargs="+",
-        default=[ROOT / ".tmp", ROOT / "evidence"],
-        help="report files or directories to scan",
+        default=[ROOT / "evidence"],
+        help=(
+            "report files or directories to scan; the default covers only reports "
+            "committed to the repository, so the output is reproducible from a clone"
+        ),
     )
     parser.add_argument("--output", type=Path, default=ROOT / "docs" / "clause_matrix.md")
     parser.add_argument(

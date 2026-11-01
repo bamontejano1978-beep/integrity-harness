@@ -25,8 +25,13 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
 
-import gradio as gr
-import yaml
+try:
+    import gradio as gr
+except ModuleNotFoundError as exc:  # clean install without the demo extra
+    raise SystemExit(
+        'Gradio is required for the laboratory app: python -m pip install -e ".[demo]"'
+    ) from exc
+import yaml
 
 APP_ROOT = Path(__file__).resolve().parent
 if str(APP_ROOT) not in sys.path:

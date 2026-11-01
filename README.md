@@ -109,7 +109,7 @@ verifies, and tamper-tests the resulting package. It accepts no free-form input
 and never falls back to fixtures.
 
 ```bash
-python -m pip install -e .
+python -m pip install -e ".[demo]"   # the demo extra adds Gradio
 python -m pip install -r offline_verifier/requirements.txt
 python demo_app.py
 ```
@@ -165,13 +165,17 @@ python -m pip install -r offline_verifier/requirements.txt
 python offline_verifier/app.py
 ```
 
-This is a local evidence-review aid, **not the complete project demo or a hosted service**. The participant guide shared with the team requires a three-minute demo video and a public repository, and identifies the live product as a primary judging artifact. a hosted demo is not required: the organizers ask for the public repository with setup instructions and the three-minute video. Hugging Face is not part of the plan; no Space has been created or published. Do not deploy until the access requirement, destination, authorization, and operational controls are clear. A live public Meta demo is separately blocked until its backend has a fail-closed hard request ceiling at each provider invocation, global and per-visitor quotas that survive concurrent requests/restarts, a confirmed monetary spend cap at the provider account, bounded timeouts/no automatic retries, and verified secret handling plus redacted logs. The existing harness has a 45-second provider timeout and 1,024-token completion limit per request, but those settings alone do not bound total spend.
+This is a local evidence-review aid, **not the complete project demo or a hosted service**. The participant guide shared with the team requires a three-minute demo video and a public repository, and identifies the live product as a primary judging artifact. A hosted demo is not required: the organizers ask for the public repository with setup instructions and the three-minute video. Hugging Face is not part of the plan; no Space has been created or published. Do not deploy until the access requirement, destination, authorization, and operational controls are clear. A live public Meta demo is separately blocked until its backend has a fail-closed hard request ceiling at each provider invocation, global and per-visitor quotas that survive concurrent requests/restarts, a confirmed monetary spend cap at the provider account, bounded timeouts/no automatic retries, and verified secret handling plus redacted logs. The CLI harness has a 45-second provider timeout; the laboratory's live slice uses
+a tighter 25-second one. Both cap 1,024 tokens per request, but neither bounds
+total spend.
 
 The Meta API key in local ignored environment files was neither inspected nor copied; it is not a deployment credential. No hosting account was configured, nothing was published, and no new live call was made.
 
 ## Saved held-out live result and verification commands
 
-A previously completed live Meta run is preserved outside the public submission tree at `.tmp/meta-live-heldout-v0_1-20261028/`. Build a signed evidence archive from that saved run without making API calls:
+A previously completed live Meta run is preserved outside the public submission tree at `.tmp/meta-live-heldout-v0_1-20261028/`. It is not part of the repository, so `--build` only works where that directory
+still exists; from a clone, start at `--verify`, which needs nothing but the
+committed archive. Building and verifying make no API calls:
 
 ```bash
 python scripts/package_meta_evidence.py --build
