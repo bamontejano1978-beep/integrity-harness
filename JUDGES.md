@@ -48,7 +48,7 @@ fixtures. Replay and synthetic control keep working, because neither calls Meta.
 | `demo_app.py` | The laboratory app |
 | `docs/rebanada_demo_live_20261031_v0.1.md` | Design of the bounded live slice |
 | `docs/clause_matrix.md` | Clause counts aggregated from stored reports, with provenance |
-| `docs/demo_walkthrough.mp4` | 1:27 video: offline path, live slice, signing and tamper test, English subtitles |
+| `docs/demo_walkthrough.mp4` | 1:33 video: offline path, live slice, signing and tamper test, English subtitles and voiceover |
 | `README.md` | Contracts, limits and what the evidence does not claim |
 
 Verify the signed package without a key:
@@ -76,7 +76,7 @@ production viability is weighed inside Impact and Technical Depth.
   verdicts per clause, Ed25519 signing, a tamper test that survives a re-hashed
   manifest, and a ledger that reserves six provider calls before the first one is
   sent.
-- **Demo (25%):** one screen recording of the running product at 1:27: the live
+- **Demo (25%):** one screen recording of the running product at 1:33: the live
   run, the two verdicts, the signature, the verification and the rejected tamper.
 - **Production readiness, stated plainly:** the laboratory is a bounded
   evaluation tool, not a production service. It fails closed without a key, does
