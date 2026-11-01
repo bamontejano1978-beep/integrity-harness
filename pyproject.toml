@@ -44,8 +44,8 @@ jev = [
 docs = ["mkdocs>=1.5", "mkdocs-material"]
 
 [project.urls]
-Source = "https://github.com/bamontejano1978-beep/behavioural-autopilot"
-Issues = "https://github.com/bamontejano1978-beep/behavioural-autopilot/issues"
+Source = "https://github.com/bamontejano1978-beep/integrity-harness"
+Issues = "https://github.com/bamontejano1978-beep/integrity-harness/issues"
 
 [tool.ruff]
 line-length = 100
