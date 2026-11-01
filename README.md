@@ -8,6 +8,15 @@ The harness evaluates documented situational-pressure scenarios with a determini
 
 ---
 
+## Licence
+
+PolyForm Noncommercial 1.0.0, reproduced in full in `LICENSE`. Reading, running,
+modifying and sharing this software for noncommercial purposes is permitted, which
+covers evaluation by the judges; commercial use is not granted. The terms cover
+every file in this repository, including the engine imported in the first commit.
+
+Required Notice: Copyright (c) 2026 Ruben.
+
 ## Provenance: what existed before, what was built during the event
 
 The submission should let judges identify what was newly created during the
