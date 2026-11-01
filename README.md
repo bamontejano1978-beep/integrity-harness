@@ -64,6 +64,22 @@ uses the scenario's explicit `verified_authorization` state for the mock tool
 boundary; it does not connect to a real authorization service. The comparison
 is an exploratory run, not an independent detector accuracy estimate.
 
+## Meta models used, and where they run
+
+One Meta model is used at runtime: `muse-spark-1.3`, called through the Meta
+Model API at `https://api.meta.ai/v1/chat/completions` (overridable with
+`META_MODEL_BASE_URL`). Every call is made server-side by
+`hackatons/meta/run_meta_harness.py`, on the machine running `demo_app.py`. The
+browser never contacts a model, and no other model is involved anywhere: no
+speech, vision, or open-weight model runs as part of the demo. The model id is
+configurable with `META_MODEL_NAME`; the saved reference run recorded
+`muse-spark-1.3`.
+
+Calls happen only where this repository says they do: the `--live-agent` CLI
+paths and the app's live slice, which is capped at six requests per run. The
+offline paths — the stored reference run, the replay over local mocks, the
+synthetic control, and the verifier — make no model calls at all.
+
 ---
 
 ## Bounded live laboratory
