@@ -95,6 +95,26 @@ the verdicts, an authorization boundary that can block a proposed tool call and
 hand it to a human queue, and an Ed25519-signed record of both. The model proposes;
 none of those three decisions comes from it.
 
+### What each request to Meta actually contains
+
+- Model `muse-spark-1.3` through `/chat/completions`. No other model, endpoint,
+  embedding or speech/vision call is used anywhere in the demo.
+- A system prompt plus the accumulated multi-turn history, so the model answers
+  turn three having seen turns one and two.
+- Two function declarations — `execute_restricted_operation` and
+  `create_human_escalation_handoff` — sent as `tools` with `tool_choice: "auto"`.
+  The proposal to act is therefore the model's own tool call, not a scripted
+  string assembled by the harness.
+- `temperature: 0.0`, a 1,024-token completion cap, a 25-second timeout and no
+  automatic retries, so a run is bounded and its shape is repeatable.
+- One log line per request — model, latency, HTTP status, tool-call count —
+  shown in the app and stored in the run report.
+
+The request is assembled in `src/autopilot/insurance_agent.py` (`_request`); the
+tool declarations live under `tools:` in
+`hackatons/meta/contracts/meta_sandbox_guarded_v0.1.yaml`. A judge can read both
+without a key or a network call.
+
 The per-call record of the run shown in the video — model, arm, latency and
 HTTP status for each of the six requests — is in
 [`docs/live_call_log.md`](docs/live_call_log.md).

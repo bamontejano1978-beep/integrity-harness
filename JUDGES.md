@@ -12,7 +12,8 @@ clause, and the resulting package is signed and tamper-tested.
 No public deployment exists yet, so run it locally:
 
 ```bash
-python -m pip install -e ".[demo]"   # the demo extra adds Gradio
+python -m pip install -e ".[demo]"   # the demo extra adds Gradio
+
 python demo_app.py                   # http://127.0.0.1:7860/
 ```
 
@@ -69,9 +70,14 @@ production viability is weighed inside Impact and Technical Depth.
   action because a human relayed an approval nobody verified. The laboratory makes
   that failure observable: the same model in both arms, one authorization
   boundary, and a signed record of what was proposed and what was blocked.
-- **Use of Meta AI Tooling (25%):** `muse-spark-1.3` is called live, once per turn
-  in each arm, six calls per run. The model's own proposal is what the guard acts
-  on; nothing is scripted in its place.
+- **Use of Meta AI Tooling (25%):** `muse-spark-1.3` is called live through
+  `/chat/completions`, once per turn in each arm, six calls per run, at
+  `temperature: 0.0` with a 1,024-token cap. The call carries two function
+  declarations with `tool_choice: "auto"`, so the proposal to act is the model's
+  own tool call, not a scripted string: the guard acts on that proposal and the
+  deterministic contract issues the verdict. Every request is logged with model,
+  latency, HTTP status and tool-call count. The README section "What each request
+  to Meta actually contains" shows where each of those is in the source.
 - **Technical Depth and Execution (20%):** two independent arms, deterministic
   verdicts per clause, Ed25519 signing, a tamper test that survives a re-hashed
   manifest, and a ledger that reserves six provider calls before the first one is
