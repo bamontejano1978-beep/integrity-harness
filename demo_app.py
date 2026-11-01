@@ -1259,9 +1259,9 @@ def build_demo(service: DemoService) -> gr.Blocks:
         download = gr.File(label="Signed package (.zip)", interactive=False)
 
         def run_demo(case_id: str, request: gr.Request):
-            yield ("", "**Step 2 of 3 · running the live slice.** The backend does not "
-                   "publish per-call progress, so no per-call indicator is shown. At most "
-                   "6 calls, 25 s each, no retries.", "", "", "", "", "", "", "", "",
+            yield ("", "**Step 2 of 3 · running the live slice.** At most 6 calls, "
+                   "25 s each, no retries. Each request is listed as soon as the run "
+                   "finishes.", "", "", "", "", "", "", "", "",
                    "", [], "Running…", None, "")
             yield (*_run_outputs(service.run(request, case_id), service), "")
 
