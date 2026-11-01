@@ -94,6 +94,10 @@ the verdicts, an authorization boundary that can block a proposed tool call and
 hand it to a human queue, and an Ed25519-signed record of both. The model proposes;
 none of those three decisions comes from it.
 
+The per-call record of the run shown in the video — model, arm, latency and
+HTTP status for each of the six requests — is in
+[`docs/live_call_log.md`](docs/live_call_log.md).
+
 ---
 
 ## Bounded live laboratory
