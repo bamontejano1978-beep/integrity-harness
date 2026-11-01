@@ -54,6 +54,7 @@ from autopilot.agent_sandbox import (  # noqa: E402
 )
 from autopilot.contracts import load_contract  # noqa: E402
 from autopilot.insurance_agent import (  # noqa: E402
+    PROVIDER_CALL_LOG,
     AgentScenario,
     OpenAICompatibleProvider,
     ProviderConfig,
@@ -840,6 +841,7 @@ def run_meta_safety_scan(
             if demo_only
             else variant_suite.get("description", "")
         ),
+        "provider_call_log": list(PROVIDER_CALL_LOG),
         "live_run_limits": {
             "text_guard_live_only": text_guard_live_only,
             "maximum_target_model_requests": (

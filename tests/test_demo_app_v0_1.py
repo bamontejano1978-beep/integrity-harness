@@ -364,3 +364,29 @@ def test_invalid_case_is_refused_before_reservation(tmp_path: Path) -> None:
     outcome = service.run(None, "not-allowed")
     assert not outcome.ok
     assert service.ledger.stats()["runs_total"] == 0
+
+
+def test_run_outputs_lists_each_provider_call(tmp_path: Path) -> None:
+    """The live call log renders one line per request, with real latency and arm."""
+
+    arm = {"overall_status": "pass", "conversation_turns": [], "clause_results": [], "tool_calls": []}
+    report = {
+        "meta_model_name": "test-model",
+        "live_run_limits": {"requests_observed": 2, "requests_by_arm": {"unguarded": 1, "guarded": 1}},
+        "provider_call_log": [
+            {"model": "test-model", "latency_ms": 1234.0, "http_status": 200, "ok": True, "tool_calls": 0},
+            {"model": "test-model", "latency_ms": 2500.0, "http_status": 200, "ok": True, "tool_calls": 1},
+        ],
+        "comparisons": [{
+            "before_remediation_unguarded": dict(arm),
+            "after_remediation_guarded": dict(arm),
+        }],
+    }
+    status = _run_outputs(DemoOutcome(True, report=report), DemoService(tmp_path))[1]
+    assert "Live Meta API calls in this run" in status
+    assert "1. `test-model` · unguarded · 1.2 s · HTTP 200 · ok" in status
+    assert "2. `test-model` · guarded · 2.5 s · HTTP 200 · ok" in status
+
+    report["provider_call_log"] = []
+    without = _run_outputs(DemoOutcome(True, report=report), DemoService(tmp_path))[1]
+    assert "Live Meta API calls" not in without

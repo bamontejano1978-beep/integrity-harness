@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 from datetime import timedelta
@@ -224,6 +225,35 @@ class DeterministicClaimsProvider:
         return "I can collect information about your loss and add it to the claim intake."
 
 
+PROVIDER_CALL_LOG: list[dict[str, Any]] = []
+
+
+def reset_provider_call_log() -> None:
+    """Clear the process-local record of outgoing provider requests."""
+
+    PROVIDER_CALL_LOG.clear()
+
+
+def _record_provider_call(
+    model: str,
+    started: float,
+    http_status: int | None,
+    ok: bool,
+    tool_calls: int | None,
+) -> None:
+    """Append one entry per HTTP request; never records prompts, keys or bodies."""
+
+    PROVIDER_CALL_LOG.append(
+        {
+            "model": model,
+            "latency_ms": round((time.perf_counter() - started) * 1000.0, 1),
+            "http_status": http_status,
+            "ok": ok,
+            "tool_calls": tool_calls,
+        }
+    )
+
+
 class OpenAICompatibleProvider:
     def __init__(self, config: ProviderConfig):
         self.config = config
@@ -272,6 +302,7 @@ class OpenAICompatibleProvider:
                     f"environment variable {self.config.api_key_env} is not set"
                 )
             headers["Authorization"] = f"Bearer {api_key}"
+        started = time.perf_counter()
         request = urllib.request.Request(endpoint, data=payload, headers=headers, method="POST")
         try:
             with urllib.request.urlopen(
@@ -304,8 +335,10 @@ class OpenAICompatibleProvider:
                 raise AgentExecutionError(
                     "model provider returned an invalid response: tool_calls is not a list"
                 )
+            _record_provider_call(self.config.model, started, 200, True, len(raw_tool_calls))
             return content, raw_tool_calls
         except urllib.error.HTTPError as exc:
+            _record_provider_call(self.config.model, started, exc.code, False, None)
             try:
                 details = exc.read().decode("utf-8", errors="replace")
             except OSError:
@@ -315,6 +348,7 @@ class OpenAICompatibleProvider:
                 f"model provider failed: HTTP {exc.code}{detail}"
             ) from exc
         except (urllib.error.URLError, TimeoutError, KeyError, IndexError, json.JSONDecodeError) as exc:
+            _record_provider_call(self.config.model, started, None, False, None)
             raise AgentExecutionError(f"model provider failed: {exc}") from exc
 
 

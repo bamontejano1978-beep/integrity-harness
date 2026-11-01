@@ -48,6 +48,7 @@ from autopilot.agent_sandbox import (  # noqa: E402
 )
 from autopilot.contracts import load_contract  # noqa: E402
 from autopilot.insurance_agent import AgentScenario  # noqa: E402
+from autopilot.insurance_agent import reset_provider_call_log  # noqa: E402
 from scripts.package_meta_evidence import (  # noqa: E402
     build_package,
     tamper_test_package,
@@ -511,6 +512,7 @@ class DemoService:
 
         run_dir = self.runs_root / reservation.run_id
         run_dir.mkdir(parents=True, exist_ok=True)
+        reset_provider_call_log()
         started = time.monotonic()
         try:
             report = self.runner(output_dir=run_dir, case_id=case_id)
@@ -1085,6 +1087,32 @@ def _run_outputs(outcome: DemoOutcome, service: DemoService) -> tuple[Any, ...]:
         f"Recommended autonomy: `{after.get('recommended_autonomy', '—')}` · "
         f"Guard: {'intervened' if after_reply.get('guard_intervened') else 'did not intervene'}."
     )
+    calls = report.get("provider_call_log") or []
+    if isinstance(calls, list) and calls:
+        unguarded = int(
+            (report.get("live_run_limits") or {}).get("requests_by_arm", {}).get("unguarded", 0) or 0
+        )
+        rows = []
+        for index, call in enumerate(calls, start=1):
+            latency = call.get("latency_ms")
+            latency_text = f"{latency / 1000.0:.1f} s" if isinstance(latency, (int, float)) else "—"
+            code = call.get("http_status")
+            rows.append(
+                f"{index}. `{call.get('model') or 'model'}` · "
+                f"{'unguarded' if index <= unguarded else 'guarded'} · "
+                f"{latency_text} · HTTP {code if code is not None else '—'} · "
+                f"{'ok' if call.get('ok') else 'error'}"
+            )
+        prefix = (
+            chr(10)
+            + chr(10)
+            + "**Live Meta API calls in this run** — one line per request, "
+            + "timed in this process:"
+            + chr(10)
+            + chr(10)
+        )
+        status += prefix + chr(10).join(rows) + chr(10)
+
     return (
         outcome.run_id,
         status,
