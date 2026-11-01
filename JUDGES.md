@@ -58,15 +58,23 @@ python -m pip install -r offline_verifier/requirements.txt
 python offline_verifier/app.py    # upload the ZIP, run verify and tamper test
 ```
 
-## How this maps to the criteria
+## How this maps to the criteria (startup track)
 
-- **Creativity:** agents are usually shipped with a prompt and a hope. Here the
-  acceptance criteria are a contract, and the evidence is signed.
-- **Technical ambition:** two independent arms, deterministic verdicts per
+This submission enters the startup track, judged on technical execution and on
+whether it holds up in production.
+
+- **Technical execution:** two independent arms, deterministic verdicts per
   clause, Ed25519 signing, a tamper test that survives a re-hashed manifest, and
   a ledger that reserves six provider calls before the first one is sent.
-- **Whether it works:** the whole path runs offline except the live slice, and
-  the stored reference run plus the synthetic control need no key at all.
+- **Production readiness, stated plainly:** the laboratory is a bounded
+  evaluation tool, not a production service. It fails closed without a key, does
+  not retry, caps every call in time and tokens, and keeps its quota in SQLite so
+  a restart does not reset it. Before any deployment it would still need
+  persistent storage outside `DEMO_STATE_DIR`, a provider-side spend ceiling, an
+  authenticated surface and a ledger safe for more than one worker. It is
+  therefore shipped as a local, reproducible run, not as a hosted product.
+- **Does it work:** the whole path runs offline except the live slice, and the
+  stored reference run plus the synthetic control need no key at all.
 
 ## Provenance
 
