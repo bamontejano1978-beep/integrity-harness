@@ -89,6 +89,11 @@ paths and the app's live slice, which is capped at six requests per run. The
 offline paths — the stored reference run, the replay over local mocks, the
 synthetic control, and the verifier — make no model calls at all.
 
+What is built on top of the model: a deterministic contract evaluator that issues
+the verdicts, an authorization boundary that can block a proposed tool call and
+hand it to a human queue, and an Ed25519-signed record of both. The model proposes;
+none of those three decisions comes from it.
+
 ---
 
 ## Bounded live laboratory
