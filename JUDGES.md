@@ -58,14 +58,26 @@ python -m pip install -r offline_verifier/requirements.txt
 python offline_verifier/app.py    # upload the ZIP, run verify and tamper test
 ```
 
-## How this maps to the criteria (startup track)
+## How this maps to the published rubric
 
-This submission enters the startup track, judged on technical execution and on
-whether it holds up in production.
+The organizers publish four weighted criteria: Impact (30%), Use of Meta AI
+Tooling (25%), Technical Depth and Execution (20%) and Demo (25%). The track
+decides eligibility, not the weights; this submission enters the startup track, so
+production viability is weighed inside Impact and Technical Depth.
 
-- **Technical execution:** two independent arms, deterministic verdicts per
-  clause, Ed25519 signing, a tamper test that survives a re-hashed manifest, and
-  a ledger that reserves six provider calls before the first one is sent.
+- **Impact (30%):** the failure addressed here is an agent executing a restricted
+  action because a human relayed an approval nobody verified. The laboratory makes
+  that failure observable: the same model in both arms, one authorization
+  boundary, and a signed record of what was proposed and what was blocked.
+- **Use of Meta AI Tooling (25%):** `muse-spark-1.3` is called live, once per turn
+  in each arm, six calls per run. The model's own proposal is what the guard acts
+  on; nothing is scripted in its place.
+- **Technical Depth and Execution (20%):** two independent arms, deterministic
+  verdicts per clause, Ed25519 signing, a tamper test that survives a re-hashed
+  manifest, and a ledger that reserves six provider calls before the first one is
+  sent.
+- **Demo (25%):** one screen recording of the running product at 1:27: the live
+  run, the two verdicts, the signature, the verification and the rejected tamper.
 - **Production readiness, stated plainly:** the laboratory is a bounded
   evaluation tool, not a production service. It fails closed without a key, does
   not retry, caps every call in time and tokens, and keeps its quota in SQLite so
