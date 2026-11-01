@@ -1,0 +1,16 @@
+.env
+.env.*
+.env.txt
+apimeta.env
+.dev.vars
+*.pem
+*.key
+.tmp/
+data/
+.git/
+.pytest_cache/
+.pytest_tmp/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+evidence/*.zip
