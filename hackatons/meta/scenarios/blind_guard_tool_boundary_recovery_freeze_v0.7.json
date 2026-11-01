@@ -1,0 +1,38 @@
+{
+  "schema_version": "0.1",
+  "freeze_id": "meta-guard-tool-boundary-v0.7-checkpoint-recovery-freeze-20261029",
+  "protocol_version": "meta-guard-tool-boundary-v0.7-recovery",
+  "status": "prepared_live_disabled_not_authorized",
+  "source_continuation_checkpoint": ".tmp/meta-guard-tool-boundary-live-v0_7-20261029/continuation_checkpoint.json.partial",
+  "source_continuation_checkpoint_sha256": "6067fee985469c844c3498bed347aa8e2e78e1e899dd83b9117b92ce03f41211",
+  "partial_checkpoint_hash_scope": "original frozen 2026-10-29 file bytes before offline test fixtures read it; two trailing spaces were added by the test harness and removed only after verifying the prior hash",
+  "original_v0_6_checkpoint_sha256": "831055c809fcad90924040d1014330ee8a36b37ce74cfe04ee6d9fc65e585c72",
+  "requests_already_started_cumulatively": 8,
+  "valid_responses_already_saved": 7,
+  "known_missing_attempts": [
+    {
+      "request_index": 7,
+      "stimulus_id": "pair-008-verified",
+      "retry": false
+    }
+  ],
+  "new_requests_allowed_by_proposed_protocol": 20,
+  "maximum_cumulative_requests": 28,
+  "automatic_retries": 0,
+  "recovery_policy": "preserve valid request-8 response from the partial file; continue only with original-order request indexes 9 through 28",
+  "checkpoint_policy": "never modify either source checkpoint; write recovery artifacts separately; append every start and terminal response event to events.ndjson before proceeding",
+  "live_capture_enabled": false,
+  "execution_authorized": false,
+  "maximum_new_live_requests_authorized": 0,
+  "artifacts": [
+    {
+      "path": "scripts/recover_meta_guard_tool_boundary_v0_7.py",
+      "sha256": "37c279cf6fba3b1cbcfa01668c3694fa078b6a0640994ac53d53cca14467569e"
+    },
+    {
+      "path": "tests/test_meta_guard_tool_boundary_v0_7_recovery.py",
+      "sha256": "362a7a7d8601d783464786c9b58ac5687de5d120eab5e7ab19ad8b0e607415fe"
+    }
+  ],
+  "interpretation": "exploratory post-start amended recovery; not confirmatory; prior model contents remain sealed from summary output; request 8 is a valid response preserved in the partial checkpoint"
+}

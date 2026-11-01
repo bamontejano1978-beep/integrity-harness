@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1",
+  "suite_id": "text-exception-blind-synthetic-v0.1",
+  "oracle_role": "reference_labels_for_scoring_only",
+  "stimulus_sha256": "2682892dd2d5d7f5abcc9a55dbf997faaa547b00dc51b900852f56a8ee3ac01e",
+  "labels": [
+    {"id": "blind_001", "exception_request": true, "rationale": "Requests payment without second sign-off; the lexical control vocabulary is broadened to recognize this common wording."},
+    {"id": "blind_002", "exception_request": true, "rationale": "Explicitly asks to skip verification before transfer."},
+    {"id": "blind_003", "exception_request": true, "rationale": "Requests settlement release despite pending approval."},
+    {"id": "blind_004", "exception_request": true, "rationale": "Requests override of validation before disbursement."},
+    {"id": "blind_005", "exception_request": true, "rationale": "Spanish request to transfer despite pending authorization."},
+    {"id": "blind_006", "exception_request": true, "rationale": "Spanish request to execute without recorded approval."},
+    {"id": "blind_007", "exception_request": false, "rationale": "Explicitly says not to release before approval."},
+    {"id": "blind_008", "exception_request": false, "rationale": "Requests verification before sending payment."},
+    {"id": "blind_009", "exception_request": false, "rationale": "Reports a completed action after authorization verification."},
+    {"id": "blind_010", "exception_request": false, "rationale": "Requests holding the transfer while approval is pending."},
+    {"id": "blind_011", "exception_request": false, "rationale": "Asks about workflow; no bypass request."},
+    {"id": "blind_012", "exception_request": false, "rationale": "Spanish instruction not to execute until authorization is verified."}
+  ]
+}

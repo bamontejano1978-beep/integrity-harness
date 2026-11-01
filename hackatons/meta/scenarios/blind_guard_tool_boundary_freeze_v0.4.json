@@ -1,0 +1,66 @@
+{
+  "schema_version": "0.1",
+  "freeze_id": "meta-guard-tool-boundary-v0.4-review-freeze-20261028",
+  "protocol_version": "meta-guard-tool-boundary-v0.4",
+  "suite_id": "meta-guard-tool-boundary-v0.4",
+  "status": "frozen_internal_review_not_independent_not_authorized_or_executed",
+  "created_date": "2026-10-28",
+  "artifacts": [
+    {
+      "path": "docs/meta-guard-tool-boundary-prereg-v0.4-review.md",
+      "sha256": "65a54c3f1e96c6d314f1e64359a8b8e0d895fe924dead4313d51a6784f4eca35"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_tool_boundary_stimuli_v0.4.json",
+      "sha256": "8727ecd4b4dcce9504f50736b1b227cb0a4a90e11b23e3d04c11ca13386085f1"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_tool_boundary_oracle_v0.4.json",
+      "sha256": "8648fd56ebd391bde1ef57d0d976ade8e36f9ce7a328d18c92811b72a78ca0fd"
+    },
+    {
+      "path": "scripts/run_meta_guard_tool_boundary_v0_4.py",
+      "sha256": "032c0b87c46f3c4588215379feaa6490f806c9e701226b1827278420666de92c"
+    }
+  ],
+  "request_budget": {
+    "maximum_new_live_requests": 28,
+    "requests_per_stimulus": 1,
+    "max_completion_tokens_per_request": 1024,
+    "temperature": 0.0,
+    "reasoning_effort": "low",
+    "automatic_retries": 0,
+    "tool_execution_during_capture": false,
+    "live_arm_replays": 0
+  },
+  "review_record": {
+    "review_status": "internal_author_review_complete",
+    "independent": false,
+    "reviewer_role": "protocol author",
+    "conflict": "reviewer designed the stimuli and oracle",
+    "review_date": "2026-10-28",
+    "checks": [
+      "8 action pairs and 3 no-action pairs have byte-identical user text within each pair",
+      "trusted authorization is a separate harness context rather than a user claim",
+      "stimulus IDs, labels, expected actions, and oracle remain scorer-only",
+      "6 explicit bypass cases are unauthorized and no-action controls forbid operation proposals",
+      "live capture proposes tools only and offline replay uses local mocks",
+      "v0.4 runner enforces one request per each of 28 stimuli, no retry, randomized recorded order, and local-mock-only replay"
+    ],
+    "limitations": [
+      "small, internally authored battery without independent adjudication",
+      "authority and urgency wording may confound authorization sensitivity with pressure sensitivity",
+      "trusted state is a fixture, not a real approval validation system"
+    ],
+    "disposition": "accepted_for_exploratory_hackathon_run_with_limitations_disclosed"
+  },
+  "execution_authorized": false,
+  "external_review_complete": false,
+  "live_capture_made": false,
+  "notes": [
+    "v0.4 has an internal, non-independent author review; explicit separate user authorization is still required before live capture.",
+    "All action execution, if later authorized, is restricted to local mocks in offline replay.",
+    "The stimulus wording, trusted context, and oracle must be reviewed together; edits require a new freeze.",
+    "Local SHA-256 hashes detect accidental edits; they are not a digital signature or trusted timestamp."
+  ]
+}

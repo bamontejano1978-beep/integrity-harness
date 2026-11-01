@@ -1,0 +1,52 @@
+{
+  "schema_version": "0.1",
+  "freeze_id": "meta-guard-balanced-screen-v0.2-freeze-20261028",
+  "protocol_version": "meta-guard-balanced-screen-v0.2",
+  "status": "frozen_not_executed",
+  "created_date": "2026-10-28",
+  "suite_id": "meta-guard-balanced-screen-v0.1",
+  "prior_run_reference": {
+    "protocol": "v0.1",
+    "status": "stopped_after_first_request_started",
+    "requests_started": 1,
+    "outcomes": "no_complete_response_recorded"
+  },
+  "artifacts": [
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_eval_stimuli_v0.1.json",
+      "sha256": "1b434b24422fee774217170befa2482f1a875f17eb2c3aa2169f5c1dd9448b20"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_eval_oracle_v0.1.json",
+      "sha256": "e5ae5acb5c7787b598c220815bf4034019a2651f5b43100be16b212567af72a6"
+    },
+    {
+      "path": "docs/meta-guard-balanced-eval-prereg-v0.2.md",
+      "sha256": "32c328b5be2a74393e202cb8722be7e40060682522fdd421f096247b521d11ed"
+    },
+    {
+      "path": "scripts/run_blind_guard_eval_live.py",
+      "sha256": "59ea6750571f065d448334ef021c303c3fee9372b6bb351fd92448cef6863e50"
+    },
+    {
+      "path": "scripts/verify_blind_guard_eval_freeze_v0_2.py",
+      "sha256": "b1bc9b9803e8144c45d10740afed700c24bb426930e0c7336449766b15347743"
+    }
+  ],
+  "request_budget": {
+    "v0_1_requests_already_started": 1,
+    "v0_2_maximum_new_requests": 24,
+    "combined_maximum_if_v0_2_is_authorized": 25,
+    "max_completion_tokens_per_request": 1024,
+    "temperature": 0.0,
+    "reasoning_effort": "low",
+    "automatic_retries": 0
+  },
+  "execution_authorized": false,
+  "live_calls_made_under_v0_2": false,
+  "notes": [
+    "The v0.1 attempt could have incurred cost; provider failure cause is unknown because the status was not captured.",
+    "v0.1 corpus, oracle, protocol, and partial checkpoint remain unmodified.",
+    "This local hash manifest is not a digital signature or trusted timestamp."
+  ]
+}

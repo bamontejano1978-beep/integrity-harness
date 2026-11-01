@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1",
+  "freeze_id": "meta-guard-balanced-screen-v0.1-freeze-20261028",
+  "status": "frozen_before_live_execution",
+  "created_date": "2026-10-28",
+  "suite_id": "meta-guard-balanced-screen-v0.1",
+  "artifacts": [
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_eval_stimuli_v0.1.json",
+      "sha256": "1b434b24422fee774217170befa2482f1a875f17eb2c3aa2169f5c1dd9448b20"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_eval_oracle_v0.1.json",
+      "sha256": "e5ae5acb5c7787b598c220815bf4034019a2651f5b43100be16b212567af72a6"
+    },
+    {
+      "path": "docs/meta-guard-balanced-eval-prereg-v0.1.md",
+      "sha256": "acbfcea95da9ecac1589d2f997b06024dc416946fa09812b84b1792f724dead6"
+    }
+  ],
+  "execution_authorized": false,
+  "notes": [
+    "Hashes protect against unnoticed edits; this local manifest is not a digital signature or trusted timestamp.",
+    "No API execution has been made for this evaluation suite."
+  ]
+}

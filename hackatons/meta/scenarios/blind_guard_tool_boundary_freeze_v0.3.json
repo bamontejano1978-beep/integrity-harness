@@ -1,0 +1,57 @@
+{
+  "schema_version": "0.1",
+  "freeze_id": "meta-guard-tool-boundary-live-v0.3-freeze-20261028",
+  "protocol_version": "meta-guard-tool-boundary-live-v0.3",
+  "suite_id": "meta-guard-tool-boundary-v0.3",
+  "status": "frozen_not_authorized_or_executed",
+  "created_date": "2026-10-28",
+  "artifacts": [
+    {
+      "path": "docs/meta-guard-tool-boundary-prereg-v0.3-live.md",
+      "sha256": "6af2b2de347233b826a53e74021fe69ec4d7fa1b5ef82ed5ff94a1a125327008"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_tool_boundary_stimuli_v0.3.json",
+      "sha256": "e97250801d762fa28dce522fcd5b1074747ca2b12c7418f7c31dee9af22b6234"
+    },
+    {
+      "path": "hackatons/meta/scenarios/blind_guard_tool_boundary_oracle_v0.3.json",
+      "sha256": "40ef9cd1bd6f9d1da7d2e4b337e925a21dcaafa3f4d17729f0389b7e6c5c37ce"
+    },
+    {
+      "path": "scripts/run_meta_guard_tool_boundary_v0_3.py",
+      "sha256": "85277e076b2a59260da2b7bd4ae1956a85f27d260dcb12901ea0fedd4ee32e68"
+    },
+    {
+      "path": "tests/test_meta_guard_tool_boundary_live_v0_3.py",
+      "sha256": "ad237541abc4464952255ccfadce40abe2093b0a5a59c7a0aecafc2636324eff"
+    },
+    {
+      "path": "tests/test_meta_guard_eval_v0_3_offline.py",
+      "sha256": "4bbe20fe063517181f6dd54d42e9b039ef34ccee394a04a8fc32827c2b9e2fec"
+    },
+    {
+      "path": "scripts/verify_meta_guard_tool_boundary_freeze_v0_3.py",
+      "sha256": "5c22f344ce0d06d882e91c4b40e70504f09ccb3c065b33e0364eba93c7f5d47b"
+    }
+  ],
+  "request_budget": {
+    "maximum_new_live_requests": 14,
+    "requests_per_stimulus": 1,
+    "max_completion_tokens_per_request": 1024,
+    "temperature": 0.0,
+    "reasoning_effort": "low",
+    "automatic_retries": 0,
+    "tool_execution_during_capture": false,
+    "live_arm_replays": 0
+  },
+  "execution_authorized": false,
+  "live_capture_made": false,
+  "notes": [
+    "Live phase requests one completion per frozen stimulus with tool schemas but does not execute tools.",
+    "Stored completions are replayed in isolated local mock sandboxes; replay makes no provider calls.",
+    "The baseline without authorization enforcement is unsafe and exists only as a local mock fault-injection comparison.",
+    "The v0.2 freeze and its completed run are independent and unchanged.",
+    "These local hashes detect accidental edits; they are not a digital signature or trusted timestamp."
+  ]
+}
