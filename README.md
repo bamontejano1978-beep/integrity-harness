@@ -4,7 +4,7 @@ Signed evidence packaging and offline verification for behavioural-assurance run
 
 The harness evaluates documented situational-pressure scenarios with a deterministic contract. A locally verified Ed25519 package is available for a saved live run; its public key is embedded and self-described, so it detects tampering but does not establish signer identity or trusted time.
 
-**Status: evidence package verified; submission not ready.** A saved Meta target-agent run and its signed archive are verified offline. The participant guide requires a three-minute demo video and a public repository, and says judges use the video, code, and live product as primary judging artifacts. The local verifier is only an evidence-review component, not the complete live project demo. Public hosting/URL requirements for the product are not explicit in the guide shared with the team and must be checked in the submission platform. Video, product access for judges, final public-repository provenance, and team submission details are pending.
+**Status: public repository complete; demo video pending.** The saved Meta target-agent run and its signed archive are verified offline. The organizers require a public repository with setup instructions and a demo video of at most 3:00; a hosted demo is explicitly optional, so nothing is deployed. Judges should start with [JUDGES.md](JUDGES.md), the 60-second path that needs no API key. The local verifier is an evidence-review component, not the complete demo. The demo video is the one outstanding requirement.
 
 ---
 
@@ -19,10 +19,10 @@ rather than in a claim.
 | Behavioural engine (`src/autopilot/`): contracts, deterministic evaluator, declarative sandbox | Pre-existing | Imported in baseline commit `2fd192d` |
 | Pressure harness (`hackatons/meta/`): scenarios, contracts, runner | Pre-existing baseline; live Meta target-agent path is present and exercised by the saved run | Baseline commit `2fd192d`; saved report is described below |
 | Muse Spark as scenario *generator* | Not evidenced by the saved held-out run | Its report records `meta_model_generator_mode: deterministic_offline`; do not claim live generation from this artifact |
-| Signed evidence packager + tamper detection | Implemented and verified locally after the baseline; files are still in the working tree | Not yet represented by a post-baseline commit |
+| Signed evidence packager + tamper detection | Implemented and verified locally after the baseline | Represented by post-baseline commits, latest `9eaccaa` |
 | Three-minute demo video | Required by the participant guide; pending | Not recorded |
-| Live product for judging | Local one-case live demo app implemented and tested offline; live run and public hosting pending | No public app deployed; the app enforces a six-request cap and is not a general chat |
-| Public repository and team submission | Public repository required; representative must submit once per team/startup and list every contributor | Final public access/provenance and submission details pending |
+| Live product | One-case live demo app implemented and tested offline; starts locally in one command | Committed after the baseline; no public deployment, which the organizers do not require; the app enforces a six-request cap and is not a general chat |
+| Public repository and team submission | Public repository at `bamontejano1978-beep/integrity-harness` | Published after the baseline; the representative still submits once and lists every contributor |
 
 Everything imported in the `baseline:` commit is verbatim: nothing was edited to
 make the pre-existing part look new, and nothing built during the event will be
@@ -106,8 +106,7 @@ model proposal. In both exercises the no-boundary arm is deliberately unsafe
 and isolated to mocks. The live scenario supplies pressure and authorization
 metadata; these results are not evidence of general safety.
 
-No public deployment exists yet. Do not expose the app publicly until the
-hosting gate is verified: persistent ledger volume, secret injection, a
+No public deployment exists, and the organizers' rules make one optional. Exposing it publicly would still require: persistent ledger volume, secret injection, a
 provider-side spend ceiling, reverse-proxy header handling, and a clean-browser
 test. The app is not the offline verifier; pressing the button makes a new live
 call, while the verifier only replays a saved package.
@@ -131,7 +130,7 @@ python -m pip install -r offline_verifier/requirements.txt
 python offline_verifier/app.py
 ```
 
-This is a local evidence-review aid, **not the complete project demo or a hosted service**. The participant guide shared with the team requires a three-minute demo video and a public repository, and identifies the live product as a primary judging artifact. It does not explicitly say that the live product must be reachable through a public hosted URL; confirm the access field/instructions in the submission platform. Hugging Face is not part of the plan; no Space has been created or published. Do not deploy until the access requirement, destination, authorization, and operational controls are clear. A live public Meta demo is separately blocked until its backend has a fail-closed hard request ceiling at each provider invocation, global and per-visitor quotas that survive concurrent requests/restarts, a confirmed monetary spend cap at the provider account, bounded timeouts/no automatic retries, and verified secret handling plus redacted logs. The existing harness has a 45-second provider timeout and 1,024-token completion limit per request, but those settings alone do not bound total spend.
+This is a local evidence-review aid, **not the complete project demo or a hosted service**. The participant guide shared with the team requires a three-minute demo video and a public repository, and identifies the live product as a primary judging artifact. a hosted demo is not required: the organizers ask for the public repository with setup instructions and the three-minute video. Hugging Face is not part of the plan; no Space has been created or published. Do not deploy until the access requirement, destination, authorization, and operational controls are clear. A live public Meta demo is separately blocked until its backend has a fail-closed hard request ceiling at each provider invocation, global and per-visitor quotas that survive concurrent requests/restarts, a confirmed monetary spend cap at the provider account, bounded timeouts/no automatic retries, and verified secret handling plus redacted logs. The existing harness has a 45-second provider timeout and 1,024-token completion limit per request, but those settings alone do not bound total spend.
 
 The Meta API key in local ignored environment files was neither inspected nor copied; it is not a deployment credential. No hosting account was configured, nothing was published, and no new live call was made.
 
@@ -145,7 +144,7 @@ python scripts/package_meta_evidence.py --verify evidence/meta-heldout-live-2026
 python scripts/package_meta_evidence.py --tamper-test evidence/meta-heldout-live-20261028-signed.zip
 ```
 
-The signed archive contains the saved JSON/Markdown report, held-out scenarios, contract, adapter, both sandbox configs, runner source, a SHA-256 manifest and an Ed25519 signature over the canonical manifest. The local private key is created once at `.tmp/meta-evidence-signing/ed25519-private.pem` and ignored by Git; never distribute it. `signature.json` includes the public key so verification works offline. The signature detects changes to the manifest and its hashed files, but the embedded key is self-described: without an independently trusted copy of that public key, it does not establish signer identity or a trusted timestamp. The archive is intentionally ignored by Git. The original `meta-heldout-live-20261028.zip` remains an unsigned legacy bundle. See the three-minute [demo script](docs/meta-heldout-live-demo.md) for accurate presentation and limitations; the local verifier can be opened with the command above.
+The signed archive contains the saved JSON/Markdown report, held-out scenarios, contract, adapter, both sandbox configs, runner source, a SHA-256 manifest and an Ed25519 signature over the canonical manifest. The local private key is created once at `.tmp/meta-evidence-signing/ed25519-private.pem` and ignored by Git; never distribute it. `signature.json` includes the public key so verification works offline. The signature detects changes to the manifest and its hashed files, but the embedded key is self-described: without an independently trusted copy of that public key, it does not establish signer identity or a trusted timestamp. The signed archive is committed so a judge can verify it from a clone; the unsigned legacy bundle is ignored. The original `meta-heldout-live-20261028.zip` remains an unsigned legacy bundle. See the three-minute [demo script](docs/meta-heldout-live-demo.md) for accurate presentation and limitations; the local verifier can be opened with the command above.
 
 The saved report records six synthetic held-out scenarios: six unguarded failures and six guarded passes across twelve paired trajectories. The same model is used in both arms. This does not establish general model robustness: `pressure_type` is supplied as metadata and the guarded sandbox applies deterministic scenario-matched responses. Do not present this one fixed run as a population rate, causal result, or production safety guarantee.
 
