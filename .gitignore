@@ -31,3 +31,6 @@ venv/
 
 # Logs
 *.log
+
+# Template with variable names and no values; safe to commit.
+!.env.example

@@ -41,7 +41,7 @@ Offline (no network, no credentials — plumbing only):
 python -X utf8 hackatons/meta/run_meta_harness.py
 ```
 
-A live run against Meta Model API is opt-in and can incur charges. Do not run it until the account owner has confirmed a spend ceiling and the intended model. The key may be supplied as `META_MODEL_API_KEY` or `MODEL_API_KEY`; for local use only, the harness also reads a git-ignored `.env`, `.env.txt`, or `apimeta.env` at the repository root. Never commit, print, or copy these secrets into browser/client code.
+A live run against Meta Model API is opt-in and can incur charges. Do not run it until the account owner has confirmed a spend ceiling and the intended model. The key may be supplied as `META_MODEL_API_KEY` or `MODEL_API_KEY`; for local use only, the harness also reads a git-ignored `.env`, `.env.txt`, or `apimeta.env` at the repository root. Never commit, print, or copy these secrets into browser/client code. A `.env.example` template lists the accepted names with empty values: copy it to `.env` and fill it in.
 
 ```bash
 export META_MODEL_API_KEY="<set privately in your shell>"
