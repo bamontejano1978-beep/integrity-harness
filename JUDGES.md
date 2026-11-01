@@ -48,6 +48,7 @@ fixtures. Replay and synthetic control keep working, because neither calls Meta.
 | `demo_app.py` | The laboratory app |
 | `docs/rebanada_demo_live_20261031_v0.1.md` | Design of the bounded live slice |
 | `docs/clause_matrix.md` | Clause counts aggregated from stored reports, with provenance |
+| `docs/demo_walkthrough.mp4` | 1:27 video: offline path, live slice, signing and tamper test, English subtitles |
 | `README.md` | Contracts, limits and what the evidence does not claim |
 
 Verify the signed package without a key:

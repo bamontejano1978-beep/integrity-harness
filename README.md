@@ -4,7 +4,7 @@ Signed evidence packaging and offline verification for behavioural-assurance run
 
 The harness evaluates documented situational-pressure scenarios with a deterministic contract. A locally verified Ed25519 package is available for a saved live run; its public key is embedded and self-described, so it detects tampering but does not establish signer identity or trusted time.
 
-**Status: public repository complete; demo video pending.** The saved Meta target-agent run and its signed archive are verified offline. The organizers require a public repository with setup instructions and a demo video of at most 3:00; a hosted demo is explicitly optional, so nothing is deployed. Judges should start with [JUDGES.md](JUDGES.md), the 60-second path that needs no API key. The local verifier is an evidence-review component, not the complete demo. The demo video is the one outstanding requirement.
+**Status: complete.** The saved Meta target-agent run and its signed archive are verified offline. The organizers require a public repository with setup instructions and a demo video of at most 3:00; a hosted demo is explicitly optional, so nothing is deployed. Judges should start with [JUDGES.md](JUDGES.md), the 60-second path that needs no API key. The local verifier is an evidence-review component, not the complete demo. The demo video is recorded at `docs/demo_walkthrough.mp4` (1:27): it shows the offline path, a live run against Meta with the calls visible, and the signing, verification and tamper test, with English subtitles.
 
 ---
 
@@ -20,7 +20,7 @@ rather than in a claim.
 | Pressure harness (`hackatons/meta/`): scenarios, contracts, runner | Pre-existing baseline; live Meta target-agent path is present and exercised by the saved run | Baseline commit `2fd192d`; saved report is described below |
 | Muse Spark as scenario *generator* | Not evidenced by the saved held-out run | Its report records `meta_model_generator_mode: deterministic_offline`; do not claim live generation from this artifact |
 | Signed evidence packager + tamper detection | Implemented and verified locally after the baseline | Represented by post-baseline commits, latest `9eaccaa` |
-| Three-minute demo video | Required by the participant guide; pending | Not recorded |
+| Demo video `docs/demo_walkthrough.mp4` | 1:27, English subtitles, live Meta call visible | Recorded after the baseline |
 | Live product | One-case live demo app implemented and tested offline; starts locally in one command | Committed after the baseline; no public deployment, which the organizers do not require; the app enforces a six-request cap and is not a general chat |
 | Public repository and team submission | Public repository at `bamontejano1978-beep/integrity-harness` | Published after the baseline; the representative still submits once and lists every contributor |
 
