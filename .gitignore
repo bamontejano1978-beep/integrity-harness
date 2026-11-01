@@ -1,6 +1,8 @@
 # Secrets — never committed
 .env
 .env.*
+.env.txt
+apimeta.env
 .dev.vars
 *.pem
 *.key
@@ -8,6 +10,10 @@
 # Reports and generated runs
 hackatons/meta/output/
 data/
+.tmp/
+.pytest_tmp/
+evidence/*.zip
+!evidence/meta-heldout-live-20261028-signed.zip
 
 # Python
 __pycache__/

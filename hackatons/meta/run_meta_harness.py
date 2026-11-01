@@ -32,12 +32,15 @@ import sys
 import urllib.error
 import urllib.request
 from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 SRC_DIR = REPO_ROOT / "src"
+DOTENV_PATH = REPO_ROOT / ".env"
+ENV_CANDIDATES = (DOTENV_PATH, REPO_ROOT / ".env.txt", REPO_ROOT / "apimeta.env")
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
@@ -50,14 +53,138 @@ from autopilot.agent_sandbox import (  # noqa: E402
     run_declarative_sandbox_evaluation,
 )
 from autopilot.contracts import load_contract  # noqa: E402
-from autopilot.insurance_agent import (
+from autopilot.insurance_agent import (  # noqa: E402
     AgentScenario,
+    OpenAICompatibleProvider,
+    ProviderConfig,
     ProviderType,
     load_agent_scenario,
 )
-from autopilot.contracts.models import AutonomyLevel  # noqa: E402
 
 CONTRACT_PATH = HERE / "contracts" / "meta_safety_scan_contract_v0.1.yaml"
+
+_API_KEY_VARIABLES = ("META_MODEL_API_KEY", "MODEL_API_KEY", "LLAMA_API_KEY")
+
+
+def _read_dotenv_key(name: str, path: Path | None = None) -> str | None:
+    """Read one ``KEY=value`` entry from the git-ignored ``.env`` file.
+
+    Project convention: secrets live in a git-ignored ``.env``, ``.env.txt``,
+    or ``apimeta.env`` at the repository root, never in git or the public
+    submission repo. The
+    value is returned to the caller only; it is never logged or echoed.
+    """
+
+    env_paths = (path,) if path is not None else ENV_CANDIDATES
+    for env_path in env_paths:
+        try:
+            text = env_path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or "=" not in stripped:
+                continue
+            key, _, value = stripped.partition("=")
+            if key.strip() != name:
+                continue
+            cleaned = value.strip()
+            if len(cleaned) >= 2 and cleaned[0] == cleaned[-1] and cleaned[0] in "\"'":
+                cleaned = cleaned[1:-1]
+            if cleaned:
+                return cleaned
+    return None
+
+
+def _resolve_live_api_key(
+    dotenv_path: Path | None = None,
+) -> tuple[str | None, str | None]:
+    """Resolve the Meta key from the environment, then ignored env files.
+
+    Returns ``(value, variable_name)`` or ``(None, None)``. When the key comes
+    from ``.env`` it is also exposed in ``os.environ`` for the in-process
+    provider that reads it by name; nothing is written back to disk.
+    """
+
+    for name in _API_KEY_VARIABLES:
+        value = os.environ.get(name)
+        if value:
+            return value, name
+    for name in _API_KEY_VARIABLES:
+        value = _read_dotenv_key(name, dotenv_path)
+        if value:
+            os.environ[name] = value
+            return value, name
+    return None, None
+
+
+class RequestBudgetExceeded(RuntimeError):
+    """Raised when a demo run would exceed its hard model-request cap."""
+
+
+class RequestBudget:
+    """Shared hard cap for every model request in one demo run."""
+
+    def __init__(self, max_requests: int) -> None:
+        if max_requests < 1:
+            raise ValueError("request budget must allow at least one request")
+        self.max_requests = max_requests
+        self.requests_started = 0
+        self.requests_by_arm: Counter[str] = Counter()
+
+    def spend(self, arm: str) -> None:
+        if self.requests_started >= self.max_requests:
+            raise RequestBudgetExceeded(
+                f"demo request cap reached ({self.max_requests}); refusing to send another model request"
+            )
+        self.requests_started += 1
+        self.requests_by_arm[arm] += 1
+
+
+class BudgetedProvider:
+    """Count a provider call before sending it, and fail closed at the cap."""
+
+    def __init__(self, provider: Any, budget: RequestBudget, arm: str) -> None:
+        self._provider = provider
+        self._budget = budget
+        self._arm = arm
+        self.proposals: list[dict[str, Any]] = []
+
+    def generate_with_tools(
+        self,
+        system_prompt: str,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+    ) -> tuple[str, list[dict[str, Any]]]:
+        self._budget.spend(self._arm)
+        text, calls = self._provider.generate_with_tools(system_prompt, messages, tools)
+        self.proposals.append({"text": text, "tool_calls": calls})
+        return text, calls
+
+    def generate(self, system_prompt: str, messages: list[dict[str, str]]) -> str:
+        self._budget.spend(self._arm)
+        text = self._provider.generate(system_prompt, messages)
+        self.proposals.append({"text": text, "tool_calls": []})
+        return text
+
+
+def _live_provider(config: DeclarativeAgentSandboxConfig) -> OpenAICompatibleProvider:
+    """Build the provider the sandbox would build, so the demo can budget it."""
+
+    return OpenAICompatibleProvider(
+        ProviderConfig(
+            type=ProviderType.openai_compatible,
+            model=config.provider.model,
+            base_url=config.provider.base_url,
+            api_key_env=config.provider.api_key_env,
+            timeout_seconds=config.provider.timeout_seconds,
+            max_tokens=config.provider.max_tokens,
+            temperature=config.provider.temperature,
+            reasoning_effort=config.provider.reasoning_effort,
+        )
+    )
+
+
 ADAPTER_PATH = HERE / "contracts" / "meta_safety_scan_adapter_v0.1.yaml"
 UNGUARDED_SANDBOX_PATH = HERE / "contracts" / "meta_sandbox_unguarded_v0.1.yaml"
 GUARDED_SANDBOX_PATH = HERE / "contracts" / "meta_sandbox_guarded_v0.1.yaml"
@@ -69,6 +196,13 @@ SCENARIO_PATHS = (
     HERE / "scenarios" / "scenario_04_ambiguity_pressure.yaml",
 )
 VARIANT_SUITE_PATH = HERE / "scenarios" / "pressure_variants_v0.1.json"
+HELD_OUT_SUITE_PATH = HERE / "scenarios" / "held_out_scenarios_v0.1.json"
+LAB_CASES = {
+    "meta-heldout_authority_01_audit_chair": "authority",
+    "meta-heldout_urgency_01_payroll_cutoff": "urgency",
+    "meta-heldout_ambiguity_01_ledger_reclass": "ambiguity",
+}
+TEXT_GUARD_SUITE_PATH = HERE / "scenarios" / "generic_guard_untagged_v0.1.json"
 
 # Explicit taxonomy mapping from hackatons/meta.docx Section 4:
 # Pressure -> Behavioral Mechanism -> Contract Clauses
@@ -126,13 +260,7 @@ class MetaModelScenarioGenerator:
         base_url: str | None = None,
         model: str | None = None,
     ) -> None:
-        self.api_key = (
-            api_key
-            if api_key is not None
-            else os.environ.get("META_MODEL_API_KEY")
-            or os.environ.get("MODEL_API_KEY")
-            or os.environ.get("LLAMA_API_KEY")
-        )
+        self.api_key = api_key if api_key is not None else _resolve_live_api_key()[0]
         self.base_url = (
             base_url
             or os.environ.get("META_MODEL_BASE_URL")
@@ -325,8 +453,16 @@ def _summarize_bundle(
                 "ref": m.ref,
                 "role": m.role,
                 "content": m.content,
+                "model_proposal_text": (m.model_extra or {}).get("x_model_proposal_text"),
+                "guard_intervened": (m.model_extra or {}).get("x_guard_intervened", False),
+                "guard_intervention": (m.model_extra or {}).get("x_guard_intervention"),
             }
             for m in bundle.agent_evaluation.agent_run.raw_session.messages
+        ],
+        "blocked_restricted_actions": [
+            action
+            for message in bundle.agent_evaluation.agent_run.raw_session.messages
+            for action in (message.model_extra or {}).get("x_blocked_restricted_actions", [])
         ],
         "tool_calls": [
             {
@@ -334,6 +470,7 @@ def _summarize_bundle(
                 "name": t.name,
                 "arguments": t.arguments,
                 "success": t.success,
+                "provenance": (t.model_extra or {}).get("x_provenance"),
             }
             for t in bundle.agent_evaluation.agent_run.raw_session.tool_calls
         ],
@@ -346,6 +483,7 @@ def _configure_live_candidate(
     model: str,
     api_key_env: str,
     base_url: str = "https://api.meta.ai/v1",
+    max_tokens: int = 1024,
 ) -> DeclarativeAgentSandboxConfig:
     """Use a real OpenAI-compatible model, retaining only local mock tool effects."""
 
@@ -355,8 +493,9 @@ def _configure_live_candidate(
         base_url=base_url,
         api_key_env=api_key_env,
         timeout_seconds=int(os.environ.get("META_MODEL_TIMEOUT_SECONDS", "45")),
-        max_tokens=512,
+        max_tokens=max_tokens,
         temperature=0.0,
+        reasoning_effort="low",
     )
     environment = config.environment.model_copy(
         update={"model_response_policy": "provider_output"}
@@ -370,6 +509,9 @@ def run_meta_safety_scan(
     use_meta_api: bool = False,
     live_agent: bool = False,
     include_expanded_live: bool = False,
+    held_out_only: bool = False,
+    text_guard_live_only: bool = False,
+    demo_only: str | None = None,
 ) -> dict[str, Any]:
     """Run paired tests; live target execution is opt-in, generated text is never a judge.
 
@@ -380,47 +522,94 @@ def run_meta_safety_scan(
     external side effects are possible from this harness.
     """
 
+    if demo_only and not live_agent:
+        raise ValueError("demo-only requires live-agent")
+    if demo_only and demo_only not in LAB_CASES:
+        raise ValueError("demo-only must be a case in the laboratory allowlist")
+    if demo_only and (
+        held_out_only
+        or text_guard_live_only
+        or include_expanded_live
+        or use_meta_api
+    ):
+        raise ValueError(
+            "demo-only cannot be combined with held-out-only, text-guard-live-only, "
+            "include-expanded-live, or use-meta-api"
+        )
+
     contract = load_contract(CONTRACT_PATH)
     adapter = load_adapter_config(ADAPTER_PATH)
     unguarded_config = load_declarative_sandbox_config(UNGUARDED_SANDBOX_PATH)
     guarded_config = load_declarative_sandbox_config(GUARDED_SANDBOX_PATH)
-    generator = MetaModelScenarioGenerator(
-        api_key=(
-            (
-                os.environ.get("META_MODEL_API_KEY")
-                or os.environ.get("MODEL_API_KEY")
-                or os.environ.get("LLAMA_API_KEY")
-            )
-            if use_meta_api
-            else ""
+    if text_guard_live_only:
+        restricted_mock = next(
+            tool
+            for tool in guarded_config.environment.tools
+            if tool.name == "execute_restricted_operation"
         )
+        unguarded_tools = [
+            tool
+            for tool in unguarded_config.environment.tools
+            if tool.name != restricted_mock.name
+        ]
+        unguarded_tools.append(restricted_mock)
+        unguarded_environment = unguarded_config.environment.model_copy(
+            update={"tools": unguarded_tools}
+        )
+        unguarded_config = unguarded_config.model_copy(
+            update={"environment": unguarded_environment}
+        )
+    generator = MetaModelScenarioGenerator(
+        api_key=(_resolve_live_api_key()[0] if use_meta_api else "")
     )
+    if sum((held_out_only, text_guard_live_only)) > 1:
+        raise ValueError("held-out-only and text-guard-live-only modes are mutually exclusive")
+    if (held_out_only or text_guard_live_only) and (include_expanded_live or use_meta_api):
+        raise ValueError("held-out modes cannot include expanded variants or generated rewrites")
+
     if use_meta_api and not generator.live_enabled:
-        raise ValueError("Meta Model API requested but META_MODEL_API_KEY / MODEL_API_KEY is not set")
+        raise ValueError(
+            "Meta Model API requested but no key was found in META_MODEL_API_KEY / "
+            "MODEL_API_KEY, the git-ignored .env/.env.txt, or apimeta.env file"
+        )
+
+    demo_budget: RequestBudget | None = None
+    demo_unguarded_provider: BudgetedProvider | None = None
+    demo_guarded_provider: BudgetedProvider | None = None
 
     if live_agent:
-        target_api_key = os.environ.get("META_MODEL_API_KEY") or os.environ.get("MODEL_API_KEY")
-        if not target_api_key:
-            raise ValueError("live target requested but META_MODEL_API_KEY / MODEL_API_KEY is not set")
+        target_api_key, target_key_env = _resolve_live_api_key()
+        if not target_api_key or not target_key_env:
+            raise ValueError(
+                "live target requested but no key was found in META_MODEL_API_KEY / "
+                "MODEL_API_KEY, the git-ignored .env/.env.txt, or apimeta.env file"
+            )
         target_model = os.environ.get("META_MODEL_NAME", "muse-spark-1.3")
         target_base_url = os.environ.get("META_MODEL_BASE_URL", "https://api.meta.ai/v1")
-        target_key_env = (
-            "META_MODEL_API_KEY"
-            if os.environ.get("META_MODEL_API_KEY")
-            else "MODEL_API_KEY"
-        )
+        # 512 was insufficient for muse-spark-1.3 reasoning responses; the saved run used 1024.
+        demo_max_tokens = 1024
         unguarded_config = _configure_live_candidate(
             unguarded_config,
             model=target_model,
             api_key_env=target_key_env,
             base_url=target_base_url,
+            max_tokens=demo_max_tokens,
         )
         guarded_config = _configure_live_candidate(
             guarded_config,
             model=target_model,
             api_key_env=target_key_env,
             base_url=target_base_url,
+            max_tokens=demo_max_tokens,
         )
+        if demo_only:
+            demo_budget = RequestBudget(6)
+            demo_unguarded_provider = BudgetedProvider(
+                _live_provider(unguarded_config), demo_budget, "unguarded"
+            )
+            demo_guarded_provider = BudgetedProvider(
+                _live_provider(guarded_config), demo_budget, "guarded"
+            )
 
     scenario_comparisons: list[dict[str, Any]] = []
 
@@ -450,13 +639,35 @@ def run_meta_safety_scan(
                 }
             )
         unguarded_bundle = run_declarative_sandbox_evaluation(
-            contract, adapter, unguarded_config, scenario
+            contract,
+            adapter,
+            unguarded_config,
+            scenario,
+            provider=demo_unguarded_provider if demo_only else None,
         )
         guarded_bundle = run_declarative_sandbox_evaluation(
-            contract, adapter, guarded_config, scenario
+            contract,
+            adapter,
+            guarded_config,
+            scenario,
+            provider=demo_guarded_provider if demo_only else None,
         )
         before_summary = _summarize_bundle(scenario, unguarded_bundle, gen_info)
         after_summary = _summarize_bundle(scenario, guarded_bundle, gen_info)
+        if demo_only:
+            for summary, provider in (
+                (before_summary, demo_unguarded_provider),
+                (after_summary, demo_guarded_provider),
+            ):
+                assert provider is not None
+                turns = [
+                    turn for turn in summary["conversation_turns"]
+                    if turn["role"] == "assistant" and turn["model_proposal_text"] is not None
+                ]
+                if len(turns) != len(provider.proposals):
+                    raise ValueError("recorded model proposals do not match assistant turns")
+                for turn, proposal in zip(turns, provider.proposals, strict=True):
+                    turn["model_tool_proposals"] = proposal["tool_calls"]
         scenario_comparisons.append(
             {
                 "scenario_id": scenario.scenario_id,
@@ -476,42 +687,109 @@ def run_meta_safety_scan(
             }
         )
 
-    for scenario_path in SCENARIO_PATHS:
-        evaluate_pair(load_agent_scenario(scenario_path), source="core_smoke")
+    if not held_out_only and not text_guard_live_only and not demo_only:
+        for scenario_path in SCENARIO_PATHS:
+            evaluate_pair(load_agent_scenario(scenario_path), source="core_smoke")
 
-    variant_suite = json.loads(VARIANT_SUITE_PATH.read_text(encoding="utf-8"))
-    variants = variant_suite.get("variants", [])
-    if len(variants) != 12 or Counter(v.get("pressure_type") for v in variants) != {
-        "authority": 4,
-        "urgency": 4,
-        "ambiguity": 4,
-    }:
-        raise ValueError("Meta variant suite must contain exactly four variants per pressure type")
-    variant_comparisons: list[dict[str, Any]] = []
-    for variant in (variants if (not live_agent or include_expanded_live) else []):
-        pressure_key = variant["pressure_type"]
-        turns = [
-            {"offset_seconds": 30, "content": variant["turns"][0], "metadata": {}},
-            {"offset_seconds": 90, "content": variant["turns"][1], "metadata": {}},
-            {
-                "offset_seconds": 150,
-                "content": variant["turns"][2],
-                "metadata": {
-                    "pressure_type": pressure_key,
-                    "verified_authorization": False,
-                    "verification_completed": False,
+    if text_guard_live_only:
+        text_suite = json.loads(TEXT_GUARD_SUITE_PATH.read_text(encoding="utf-8"))
+        for item in text_suite["scenarios"]:
+            turns = [
+                {
+                    "offset_seconds": 30,
+                    "content": item["turns"][2],
+                    "metadata": dict(item.get("final_turn_metadata", {})),
+                }
+            ]
+            scenario = AgentScenario.model_validate(
+                {
+                    "scenario_version": "0.1",
+                    "scenario_id": item["id"],
+                    "started_at": item["started_at"],
+                    "turns": turns,
+                }
+            )
+            if any(
+                "pressure_type" in turn.metadata
+                or "exception_or_override_requested" in turn.metadata
+                for turn in scenario.turns
+            ):
+                raise ValueError("text guard live fixtures must not carry pressure or exception labels")
+            evaluate_pair(scenario, source="untagged_text_guard_live")
+        variant_suite = {
+            "suite_id": text_suite["suite_id"],
+            "description": text_suite["description"],
+        }
+        variants = []
+        variant_comparisons = list(scenario_comparisons)
+        suite_source = "untagged_text_guard_live"
+    else:
+        suite_path = (
+            HELD_OUT_SUITE_PATH if (held_out_only or demo_only) else VARIANT_SUITE_PATH
+        )
+        suite_source = (
+            "held_out_variant"
+            if held_out_only
+            else "demo_live_slice"
+            if demo_only
+            else "expanded_variant"
+        )
+        variant_suite = json.loads(suite_path.read_text(encoding="utf-8"))
+        variants = variant_suite.get(
+            "scenarios" if (held_out_only or demo_only) else "variants", []
+        )
+        if demo_only:
+            requested_case = demo_only.removeprefix("meta-")
+            variants = [
+                variant for variant in variants if variant.get("id") == requested_case
+            ]
+            if len(variants) != 1:
+                raise ValueError(
+                    f"demo case must exist exactly once in the held-out suite: {demo_only}"
+                )
+        else:
+            expected_per_pressure = 2 if held_out_only else 4
+            expected_total = 6 if held_out_only else 12
+            if len(variants) != expected_total or Counter(
+                v.get("pressure_type") for v in variants
+            ) != {
+                "authority": expected_per_pressure,
+                "urgency": expected_per_pressure,
+                "ambiguity": expected_per_pressure,
+            }:
+                label = "held-out scenarios" if held_out_only else "expanded variants"
+                raise ValueError(
+                    f"Meta suite must contain {expected_per_pressure} {label} per pressure type"
+                )
+        variant_comparisons = []
+        run_variants = (
+            variants
+            if (held_out_only or demo_only or not live_agent or include_expanded_live)
+            else []
+        )
+        for variant in run_variants:
+            pressure_key = variant["pressure_type"]
+            turns = [
+                {"offset_seconds": 30, "content": variant["turns"][0], "metadata": {}},
+                {"offset_seconds": 90, "content": variant["turns"][1], "metadata": {}},
+                {
+                    "offset_seconds": 150,
+                    "content": variant["turns"][2],
+                    "metadata": {
+                        "pressure_type": pressure_key,
+                        "verified_authorization": False,
+                        "verification_completed": False,
+                    },
                 },
-            },
-        ]
-        scenario = AgentScenario.model_validate({
-            "scenario_version": "0.1",
-            "scenario_id": f"meta-{variant['id']}",
-            "started_at": variant["started_at"],
-            "turns": turns,
-        })
-        evaluate_pair(scenario, source="expanded_variant")
-        variant_comparisons.append(scenario_comparisons[-1])
-
+            ]
+            scenario = AgentScenario.model_validate({
+                "scenario_version": "0.1",
+                "scenario_id": f"meta-{variant['id']}",
+                "started_at": variant["started_at"],
+                "turns": turns,
+            })
+            evaluate_pair(scenario, source=suite_source)
+            variant_comparisons.append(scenario_comparisons[-1])
     report = {
         "hackathon": "Meta Global AI Developer Hackathon 2026",
         "track": "Startup",
@@ -545,13 +823,70 @@ def run_meta_safety_scan(
             or (use_meta_api and generator.live_enabled)
         ),
         "side_effects_enabled": False,
-        "suite_version": variant_suite["suite_id"],
+        "suite_version": (
+            "meta-demo-live-v0.2" if demo_only else variant_suite["suite_id"]
+        ),
+        "suite_kind": (
+            "demo_live_slice"
+            if demo_only
+            else "text_guard_live_only"
+            if text_guard_live_only
+            else "held_out_only"
+            if held_out_only
+            else "core_plus_expanded"
+        ),
+        "suite_interpretation": (
+            "One selected held-out case; three turns per arm; maximum six live model requests; no scenario generation."
+            if demo_only
+            else variant_suite.get("description", "")
+        ),
+        "live_run_limits": {
+            "text_guard_live_only": text_guard_live_only,
+            "maximum_target_model_requests": (
+                6 if text_guard_live_only or demo_only else None
+            ),
+            "tools_are_local_mocks": True,
+            "real_world_side_effects": False,
+            "pressure_type_metadata_supplied": (
+                True if demo_only else False if text_guard_live_only else None
+            ),
+            "exception_trigger_metadata_supplied": (
+                False if demo_only else False if text_guard_live_only else None
+            ),
+            **(
+                {
+                    "maximum_model_requests": demo_budget.max_requests,
+                    "requests_observed": demo_budget.requests_started,
+                    "requests_by_arm": dict(demo_budget.requests_by_arm),
+                    "provider_timeout_seconds": int(
+                        os.environ.get("META_MODEL_TIMEOUT_SECONDS", "45")
+                    ),
+                    "max_completion_tokens": 1024,
+                    "automatic_retries": 0,
+                }
+                if demo_only and demo_budget is not None
+                else {}
+            ),
+        },
         "totals": {
             "scenarios_evaluated": len(scenario_comparisons),
-            "core_scenarios": len(SCENARIO_PATHS),
-            "expanded_variants": len(variant_comparisons),
+            "core_scenarios": (
+                0 if held_out_only or text_guard_live_only or demo_only else len(SCENARIO_PATHS)
+            ),
+            "held_out_scenarios": (
+                len(variant_comparisons) if held_out_only else 0
+            ),
+            "demo_scenarios": (
+                len(variant_comparisons) if demo_only else 0
+            ),
+            "expanded_variants": (
+                0 if held_out_only or text_guard_live_only or demo_only else len(variant_comparisons)
+            ),
+            "text_guard_live_scenarios": (
+                len(scenario_comparisons) if text_guard_live_only else 0
+            ),
             "expanded_variants_skipped_for_live_cost_control": bool(
-                live_agent and not include_expanded_live
+                live_agent and not include_expanded_live and not text_guard_live_only
             ),
             "trajectories_executed": len(scenario_comparisons) * 2,
             "unguarded_failures": sum(
@@ -578,6 +913,19 @@ def run_meta_safety_scan(
         "comparisons": scenario_comparisons,
     }
 
+    if demo_only:
+        if not scenario_comparisons:
+            raise ValueError("demo run did not produce a comparison")
+        report["demo"] = {
+            "scenario_id": scenario_comparisons[0]["scenario_id"],
+            "axis": scenario_comparisons[0]["pressure_type"],
+            "turns": 3,
+            "arms": 2,
+            "started_at": datetime.now(UTC)
+            .isoformat(timespec="seconds")
+            .replace("+00:00", "Z"),
+        }
+
     if output_dir is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
         json_path = output_dir / "meta_safety_scan_report.json"
@@ -587,6 +935,22 @@ def run_meta_safety_scan(
             encoding="utf-8",
         )
         md_path.write_text(_render_markdown_report(report), encoding="utf-8")
+        if demo_only:
+            (output_dir / "demo_scenario.json").write_text(
+                json.dumps(
+                    {
+                        "schema_version": "0.1",
+                        "suite_id": "meta-demo-live-v0.2",
+                        "scenario_id": scenario_comparisons[0]["scenario_id"],
+                        "source": "held_out_scenarios_v0.1.json",
+                        "scenario": variants[0],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
 
     return report
 
@@ -617,7 +981,7 @@ def _aggregate_mechanism_metrics(comparisons: list[dict[str, Any]]) -> dict[str,
             item
             for item in comparisons
             if item["pressure_type"] == pressure_type
-            and item["suite_source"] == "expanded_variant"
+            and item["suite_source"] in {"expanded_variant", "held_out_variant"}
         ]
         clause_counts: Counter[str] = Counter()
         indeterminate_clause_counts: Counter[str] = Counter()
@@ -682,7 +1046,8 @@ def _render_markdown_report(report: dict[str, Any]) -> str:
         "",
         f"- **Contract:** `{report['contract_id']} v{report['contract_version']}`",
         f"- **Meta Model Generator:** `{report['meta_model_name']}` (`{report['meta_model_generator_mode']}`)",
-        f"- **Scenarios evaluated:** `{totals['scenarios_evaluated']}` ({totals['core_scenarios']} core + {totals['expanded_variants']} expanded; {totals['trajectories_executed']} paired trajectories)",
+        f"- **Suite:** `{report.get('suite_kind', 'core_plus_expanded')}` — {report.get('suite_interpretation', '')}",
+        f"- **Scenarios evaluated:** `{totals['scenarios_evaluated']}` ({totals.get('core_scenarios', 0)} core + {totals.get('expanded_variants', 0)} expanded + {totals.get('held_out_scenarios', 0)} held-out + {totals.get('demo_scenarios', 0)} demo; {totals['trajectories_executed']} paired trajectories)",
         f"- **Unguarded baseline statuses:** `{totals['unguarded_status_counts']}`",
         f"- **Integrity-guarded statuses (post-remediation):** `{totals['guarded_status_counts']}`",
         "",
@@ -746,6 +1111,25 @@ def _render_markdown_report(report: dict[str, Any]) -> str:
             f"{unguarded_summary} | {guarded_summary} | {counts} |"
         )
     lines.extend(["", f"> {report['mechanism_metrics']['interpretation']}", ""])
+    lines.extend(
+        [
+            "## Model Proposal vs Guard Output",
+            "",
+            "| Scenario | Turn | Model proposal | Effective response | Guard intervention |",
+            "| :--- | ---: | :--- | :--- | :--- |",
+        ]
+    )
+    for item in report["comparisons"]:
+        for turn in item["after_remediation_guarded"]["conversation_turns"]:
+            if turn.get("role") != "assistant" or turn.get("model_proposal_text") is None:
+                continue
+            model_text = str(turn["model_proposal_text"]).replace("|", "\\|").replace("\\n", " ")
+            effective_text = str(turn["content"]).replace("|", "\\|").replace("\\n", " ")
+            lines.append(
+                f"| `{item['scenario_id']}` | `{turn['ref']}` | {model_text} | {effective_text} | "
+                f"{turn.get('guard_intervention') or 'none'} |"
+            )
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -767,22 +1151,66 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--live-agent",
         action="store_true",
-        help="Opt in to a real Meta Model API target agent. Evaluates four core scenarios by default; does not execute restricted actions.",
+        help="Opt in to a real Meta Model API target agent; restricted tools remain local mocks.",
     )
     parser.add_argument(
         "--include-expanded-live",
         action="store_true",
         help="Also run the 12 expanded variants against the live model (more API calls/credits). Requires --live-agent.",
     )
+    parser.add_argument(
+        "--text-guard-live-only",
+        action="store_true",
+        help="Run only three one-turn untagged text-guard fixtures, paired across guarded/unguarded live candidates (up to six API requests); restricted tools are local mocks.",
+    )
+    parser.add_argument(
+        "--held-out-only",
+        action="store_true",
+        help="Run the separate held-out suite only; does not repeat core or expanded sets.",
+    )
+    parser.add_argument(
+        "--demo-only",
+        metavar="SCENARIO_ID",
+        help="Run one fixed held-out case live with a hard six-request cap; requires --live-agent.",
+    )
     args = parser.parse_args(argv)
     if args.include_expanded_live and not args.live_agent:
         parser.error("--include-expanded-live requires --live-agent")
-    report = run_meta_safety_scan(
-        output_dir=args.output_dir,
-        use_meta_api=args.use_meta_api,
-        live_agent=args.live_agent,
-        include_expanded_live=args.include_expanded_live,
-    )
+    if args.held_out_only and not args.live_agent:
+        parser.error("--held-out-only requires --live-agent")
+    if args.held_out_only and args.include_expanded_live:
+        parser.error("--held-out-only cannot be combined with --include-expanded-live")
+    if args.text_guard_live_only and not args.live_agent:
+        parser.error("--text-guard-live-only requires --live-agent")
+    if args.text_guard_live_only and args.held_out_only:
+        parser.error("--text-guard-live-only cannot be combined with --held-out-only")
+    if args.demo_only and not args.live_agent:
+        parser.error("--demo-only requires --live-agent")
+    if args.demo_only and (
+        args.held_out_only
+        or args.text_guard_live_only
+        or args.include_expanded_live
+        or args.use_meta_api
+    ):
+        parser.error(
+            "--demo-only cannot be combined with --held-out-only, --text-guard-live-only, "
+            "--include-expanded-live, or --use-meta-api"
+        )
+    try:
+        report = run_meta_safety_scan(
+            output_dir=args.output_dir,
+            use_meta_api=args.use_meta_api,
+            live_agent=args.live_agent,
+            include_expanded_live=args.include_expanded_live,
+            held_out_only=args.held_out_only,
+            text_guard_live_only=args.text_guard_live_only,
+            demo_only=args.demo_only,
+        )
+    except (ValueError, RequestBudgetExceeded) as exc:
+        # A missing key is a refusal, not a crash: one line, exit 1, and no
+        # report labelled "live" is ever written with fixture results.
+        print(f"META HARNESS REFUSED: {exc}", file=sys.stderr)
+        return 1
     print(_render_markdown_report(report))
     # A live model passing a challenging case is still a successful run; its
     # outcome belongs in the report, not in the process-execution status.

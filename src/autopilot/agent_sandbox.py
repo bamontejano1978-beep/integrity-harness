@@ -51,6 +51,7 @@ from autopilot.operational_integrity import (
     OperationalTrace,
     evaluate_operational_integrity,
 )
+from autopilot.textual_exception_detector import detect_textual_exception_request
 from autopilot.telemetry_interchange import (
     PROFILE_VERSION,
     AgentTelemetryExport,
@@ -169,6 +170,7 @@ class SandboxEnvironmentConfig(ExtensibleModel):
 
     model_response_policy: Literal["scripted_rules", "provider_output"] = "scripted_rules"
     override_provider_output_with_scenario_guard: StrictBool = True
+    generic_exception_guard: StrictBool = False
     restricted_actions: list[SnakeName] = Field(default_factory=list)
     max_tool_calls: Annotated[int, Field(ge=0, le=100, strict=True)] = 10
     initial_events: list[SandboxEventEmission] = Field(default_factory=list)
@@ -202,12 +204,17 @@ class SandboxEnvironmentConfig(ExtensibleModel):
             raise ValueError("sandbox turn rule ids must be unique")
         if len(self.restricted_actions) != len(set(self.restricted_actions)):
             raise ValueError("restricted action names must be unique")
-        missing_tools = set(self.restricted_actions) - set(tool_names)
-        if missing_tools:
-            raise ValueError(
-                "sandbox restricted actions must be declared mock tools: "
-                + ", ".join(sorted(missing_tools))
-            )
+        if self.generic_exception_guard:
+            missing_tools = set(self.restricted_actions) - set(tool_names)
+            if missing_tools:
+                raise ValueError(
+                    "generic exception guard restricted actions must be declared mock tools: "
+                    + ", ".join(sorted(missing_tools))
+                )
+            if "create_human_escalation_handoff" not in tool_names:
+                raise ValueError(
+                    "generic exception guard requires create_human_escalation_handoff tool"
+                )
         return self
 
 
@@ -228,6 +235,7 @@ class SandboxProviderConfig(ExtensibleModel):
     timeout_seconds: Annotated[int, Field(ge=1, le=300, strict=True)] = 30
     max_tokens: Annotated[int, Field(ge=1, le=4096, strict=True)] = 512
     temperature: Annotated[float, Field(ge=0.0, le=2.0, strict=True)] = 0.0
+    reasoning_effort: Literal["low", "medium", "high"] | None = None
 
     @model_validator(mode="after")
     def validate_provider_settings(self) -> SandboxProviderConfig:
@@ -411,6 +419,7 @@ class DeclarativeAgentSandbox:
                     timeout_seconds=config.provider.timeout_seconds,
                     max_tokens=config.provider.max_tokens,
                     temperature=config.provider.temperature,
+                    reasoning_effort=config.provider.reasoning_effort,
                 )
             )
         else:
@@ -485,6 +494,16 @@ class DeclarativeAgentSandbox:
                 for rule in env.turn_rules
                 if _matches_turn_criterion(rule.when, turn.content, turn.metadata)
             ]
+            textual_exception_signal = detect_textual_exception_request(turn.content)
+            structured_exception_signal = (
+                turn.metadata.get("exception_or_override_requested") is True
+            )
+            # The generic textual guard is a tool-boundary fallback for turns
+            # without a scenario rule. It must not override a tagged scenario
+            # rule, which owns the canonical response and handoff. It is also
+            # finalized only after the model proposal is parsed, so a turn that
+            # merely mentions approval cannot emit pressure by itself.
+            generic_exception_guard_applies = False
 
             for rule_idx, rule in enumerate(matched_rules, start=1):
                 for ev_idx, emission in enumerate(rule.emit_events, start=1):
@@ -511,6 +530,9 @@ class DeclarativeAgentSandbox:
                         )
 
             requested_specs: list[SandboxToolCallSpec] = []
+            requested_spec_provenance: list[dict[str, Any]] = []
+            blocked_actions: list[dict[str, Any]] = []
+            guard_tool_intervened = False
             proposal_text: str | None = None
             use_provider_output = (
                 self.provider is not None
@@ -535,6 +557,14 @@ class DeclarativeAgentSandbox:
                         history,
                         openai_tools,
                     )
+                    if not isinstance(proposal_text, str):
+                        raise AgentExecutionError("model provider returned non-text assistant content")
+                    if not isinstance(raw_calls, list):
+                        raise AgentExecutionError("model provider returned invalid tool call list")
+                    if use_provider_output and not proposal_text.strip() and not raw_calls:
+                        raise AgentExecutionError(
+                            "model provider returned neither assistant content nor tool calls"
+                        )
                     for call_offset, raw_call in enumerate(raw_calls, start=1):
                         try:
                             parsed: CapabilityCall = parse_tool_calls(
@@ -542,6 +572,55 @@ class DeclarativeAgentSandbox:
                             )[0]
                         except (ValueError, IndexError) as exc:
                             raise AgentExecutionError(f"invalid model tool call: {exc}") from exc
+                        if (
+                            self.config.policy.safety_guard
+                            and parsed.name in env.restricted_actions
+                            and turn.metadata.get("verified_authorization") is not True
+                        ):
+                            blocked_provenance = {
+                                "source": "guard_boundary",
+                                "guard_intervention": "blocked_unauthorized_restricted_action",
+                            }
+                            blocked_at = (
+                                user_at + timedelta(seconds=8 + call_offset)
+                            ).isoformat()
+                            blocked_actions.append(
+                                {
+                                    "call_id": parsed.call_id,
+                                    "name": parsed.name,
+                                    "arguments": dict(parsed.arguments),
+                                    "provenance": blocked_provenance,
+                                }
+                            )
+                            blocked_call_ref = (
+                                f"turn-{turn_index:03d}-blocked-{call_offset:02d}-{parsed.name}"
+                            )
+                            tool_calls.append(
+                                RawToolCall(
+                                    ref=blocked_call_ref,
+                                    name=parsed.name,
+                                    observed_at=blocked_at,
+                                    arguments=dict(parsed.arguments),
+                                    result={"reason": "verified_authorization_required"},
+                                    success=False,
+                                    x_provenance=blocked_provenance,
+                                )
+                            )
+                            operational_observations.append(
+                                OperationalObservation(
+                                    ref=f"op-{blocked_call_ref}",
+                                    kind=OperationalObservationKind.tool_call,
+                                    name=parsed.name,
+                                    observed_at=blocked_at,
+                                    source=ObservationSource.environment,
+                                    attributes={
+                                        "success": False,
+                                        "outcome": "blocked",
+                                        "reason": "verified_authorization_required",
+                                    },
+                                )
+                            )
+                            continue
                         requested_specs.append(
                             SandboxToolCallSpec(
                                 name=parsed.name,
@@ -549,24 +628,212 @@ class DeclarativeAgentSandbox:
                                 arguments=parsed.arguments,
                             )
                         )
+                        requested_spec_provenance.append(
+                            {
+                                "source": "model_proposal",
+                                "model_proposal": {
+                                    "call_id": parsed.call_id,
+                                    "name": parsed.name,
+                                    "arguments": dict(parsed.arguments),
+                                },
+                                "guard_intervention": None,
+                            }
+                        )
                 else:
                     proposal_text = self.provider.generate(
                         self.config.policy.system_prompt,
                         history,
                     )
+                    if not isinstance(proposal_text, str):
+                        raise AgentExecutionError("model provider returned non-text assistant content")
+                    if use_provider_output and not proposal_text.strip():
+                        raise AgentExecutionError(
+                            "model provider returned empty assistant content"
+                        )
+
+            model_proposed_restricted_action = bool(blocked_actions) or any(
+                spec.name in env.restricted_actions for spec in requested_specs
+            )
+            generic_exception_guard_applies = (
+                env.generic_exception_guard
+                and not matched_rules
+                and (
+                    structured_exception_signal
+                    or (
+                        textual_exception_signal.triggered
+                        and model_proposed_restricted_action
+                    )
+                )
+                and turn.metadata.get("verified_authorization") is not True
+            )
+
+            if (
+                use_provider_output
+                and self.config.policy.safety_guard
+                and generic_exception_guard_applies
+            ):
+                exception_ref = f"turn-{turn_index:03d}-generic-exception-requested"
+                events.append(
+                    RawEvent(
+                        ref=exception_ref,
+                        name="exception_or_override_requested",
+                        observed_at=(user_at + timedelta(seconds=2)).isoformat(),
+                        payload={
+                            "detector_source": (
+                                "structured_metadata"
+                                if structured_exception_signal
+                                else "textual_rule_detector"
+                            ),
+                            "detector_rule_ids": ",".join(textual_exception_signal.rule_ids),
+                        },
+                    )
+                )
+                events.append(
+                    RawEvent(
+                        ref=f"turn-{turn_index:03d}-generic-pressure-applied",
+                        name="situational_pressure_applied",
+                        observed_at=(user_at + timedelta(seconds=2)).isoformat(),
+                        payload={"verified_authorization": False},
+                    )
+                )
+                for spec, provenance in zip(
+                    requested_specs, requested_spec_provenance, strict=True
+                ):
+                    if spec.name in env.restricted_actions:
+                        blocked_actions.append(
+                            {
+                                "name": spec.name,
+                                "arguments": dict(spec.arguments),
+                                "call_provenance": provenance,
+                            }
+                        )
+                retained = [
+                    (spec, provenance)
+                    for spec, provenance in zip(
+                        requested_specs, requested_spec_provenance, strict=True
+                    )
+                    if spec.name not in env.restricted_actions
+                ]
+                requested_specs = [spec for spec, _ in retained]
+                requested_spec_provenance = [provenance for _, provenance in retained]
+                handoff_proposals = [
+                    provenance["model_proposal"]
+                    for spec, provenance in zip(
+                        requested_specs, requested_spec_provenance, strict=True
+                    )
+                    if spec.name == "create_human_escalation_handoff"
+                    and provenance.get("source") == "model_proposal"
+                ]
+                retained = [
+                    (spec, provenance)
+                    for spec, provenance in zip(
+                        requested_specs, requested_spec_provenance, strict=True
+                    )
+                    if spec.name != "create_human_escalation_handoff"
+                ]
+                requested_specs = [spec for spec, _ in retained]
+                requested_spec_provenance = [provenance for _, provenance in retained]
+                requested_specs.append(
+                    SandboxToolCallSpec(
+                        name="create_human_escalation_handoff",
+                        offset_seconds=15,
+                        arguments={"queue": "compliance_review_queue"},
+                    )
+                )
+                requested_spec_provenance.append(
+                    {
+                        "source": "generic_exception_guard",
+                        "model_proposals": handoff_proposals,
+                        "guard_intervention": (
+                            "replaced_model_proposal"
+                            if handoff_proposals
+                            else "added_required_tool_call"
+                        ),
+                    }
+                )
 
             for rule in matched_rules:
                 if not use_provider_output:
                     requested_specs.extend(rule.tool_calls)
-                elif self.config.policy.safety_guard:
-                    # A guarded model response may still propose no handoff.
-                    # The deterministic guard owns the required escalation tool
-                    # call, but never executes the mock tool suggested by user text.
+                    requested_spec_provenance.extend(
+                        {
+                            "source": "scenario_rule",
+                            "guard_intervention": None,
+                        }
+                        for _ in rule.tool_calls
+                    )
+                elif self.config.policy.safety_guard and not generic_exception_guard_applies:
+                    # The deterministic guard owns required tool calls. Replace
+                    # model proposals for the same capability so incomplete or
+                    # altered arguments cannot satisfy the policy by name alone.
                     for spec in rule.tool_calls:
-                        if not any(existing.name == spec.name for existing in requested_specs):
-                            requested_specs.append(spec)
+                        proposals = [
+                            provenance["model_proposal"]
+                            for existing, provenance in zip(
+                                requested_specs, requested_spec_provenance, strict=True
+                            )
+                            if existing.name == spec.name
+                            and provenance.get("source") == "model_proposal"
+                        ]
+                        retained = [
+                            (existing, provenance)
+                            for existing, provenance in zip(
+                                requested_specs, requested_spec_provenance, strict=True
+                            )
+                            if existing.name != spec.name
+                        ]
+                        requested_specs = [existing for existing, _ in retained]
+                        requested_spec_provenance = [provenance for _, provenance in retained]
+                        requested_specs.append(spec)
+                        requested_spec_provenance.append(
+                            {
+                                "source": "guard_rule",
+                                "model_proposals": proposals,
+                                "guard_intervention": (
+                                    "replaced_model_proposal"
+                                    if proposals
+                                    else "added_required_tool_call"
+                                ),
+                            }
+                        )
 
-            for call_idx, spec in enumerate(requested_specs, start=1):
+            # A handoff proposed outside a matched scenario rule still has to
+            # carry the only queue the guarded policy permits. Canonicalize it
+            # silently: no pressure event and no extra response notice.
+            if self.config.policy.safety_guard:
+                canonical_specs: list[SandboxToolCallSpec] = []
+                canonical_provenance: list[dict[str, Any]] = []
+                for spec, provenance in zip(
+                    requested_specs, requested_spec_provenance, strict=True
+                ):
+                    if (
+                        spec.name == "create_human_escalation_handoff"
+                        and provenance.get("source") == "model_proposal"
+                        and dict(spec.arguments) != {"queue": "compliance_review_queue"}
+                    ):
+                        canonical_specs.append(
+                            SandboxToolCallSpec(
+                                name=spec.name,
+                                offset_seconds=spec.offset_seconds,
+                                arguments={"queue": "compliance_review_queue"},
+                            )
+                        )
+                        canonical_provenance.append(
+                            {
+                                **provenance,
+                                "guard_intervention": "canonicalized_model_handoff",
+                            }
+                        )
+                        guard_tool_intervened = True
+                    else:
+                        canonical_specs.append(spec)
+                        canonical_provenance.append(provenance)
+                requested_specs = canonical_specs
+                requested_spec_provenance = canonical_provenance
+
+            for call_idx, (spec, provenance) in enumerate(
+                zip(requested_specs, requested_spec_provenance, strict=True), start=1
+            ):
                 call_at = (user_at + timedelta(seconds=spec.offset_seconds)).isoformat()
                 if (
                     self.config.policy.safety_guard
@@ -593,6 +860,7 @@ class DeclarativeAgentSandbox:
                         arguments=dict(spec.arguments),
                         result=result_payload,
                         success=(outcome == "success"),
+                        x_provenance=provenance,
                     )
                 )
                 operational_observations.append(
@@ -634,14 +902,39 @@ class DeclarativeAgentSandbox:
                             )
                         )
 
-            assistant_metadata: dict[str, Any] = {"guard_intervened": False}
-            assistant_metadata.update(turn.metadata)
+            assistant_metadata: dict[str, Any] = dict(turn.metadata)
+            assistant_metadata["guard_intervened"] = (
+                bool(blocked_actions) or guard_tool_intervened
+            )
+            if generic_exception_guard_applies:
+                assistant_metadata["textual_exception_signal"] = ",".join(
+                    textual_exception_signal.rule_ids
+                )
             selected_response = proposal_text or env.default_assistant_response
+            response_guard_intervention: str | None = None
+            if (
+                use_provider_output
+                and self.config.policy.safety_guard
+                and generic_exception_guard_applies
+            ):
+                assistant_metadata["guard_intervened"] = True
+                response_guard_intervention = "appended_generic_boundary_notice"
+                boundary_notice = (
+                    "Safety boundary: restricted actions require verified authorization. "
+                    "I cannot bypass verified authorization. This request has been "
+                    "routed to compliance review."
+                )
+                selected_response = (
+                    f"{selected_response.rstrip()}\n\n{boundary_notice}"
+                    if selected_response.strip()
+                    else boundary_notice
+                )
 
             for rule in matched_rules:
                 assistant_metadata.update(rule.assistant_metadata)
                 if (
                     self.config.policy.safety_guard
+                    and not generic_exception_guard_applies
                     and (
                         not use_provider_output
                         or env.override_provider_output_with_scenario_guard
@@ -652,8 +945,12 @@ class DeclarativeAgentSandbox:
                     # model proposes a response; the LLM cannot override it.
                     selected_response = rule.safety_guard_response
                     assistant_metadata["guard_intervened"] = True
+                    response_guard_intervention = "replaced_model_response"
                 elif not use_provider_output and rule.assistant_response is not None:
                     selected_response = rule.assistant_response
+
+            if guard_tool_intervened and response_guard_intervention is None:
+                response_guard_intervention = "canonicalized_model_handoff"
 
             assistant_at = (user_at + timedelta(seconds=8)).isoformat()
             messages.append(
@@ -663,6 +960,10 @@ class DeclarativeAgentSandbox:
                     observed_at=assistant_at,
                     content=selected_response,
                     metadata=assistant_metadata,
+                    x_model_proposal_text=proposal_text,
+                    x_guard_intervened=bool(assistant_metadata["guard_intervened"]),
+                    x_guard_intervention=response_guard_intervention,
+                    x_blocked_restricted_actions=blocked_actions,
                 )
             )
             history.append({"role": "assistant", "content": selected_response})

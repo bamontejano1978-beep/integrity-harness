@@ -68,6 +68,7 @@ class ProviderConfig(ExtensibleModel):
     timeout_seconds: Annotated[int, Field(ge=1, le=300, strict=True)] = 30
     max_tokens: Annotated[int, Field(ge=1, le=4096, strict=True)] = 512
     temperature: Annotated[float, Field(ge=0.0, le=2.0, strict=True)] = 0.0
+    reasoning_effort: Literal["low", "medium", "high"] | None = None
 
     @model_validator(mode="after")
     def validate_provider_fields(self) -> ProviderConfig:
@@ -249,7 +250,16 @@ class OpenAICompatibleProvider:
             {
                 "model": self.config.model,
                 "temperature": self.config.temperature,
-                "max_tokens": self.config.max_tokens,
+                (
+                    "max_completion_tokens"
+                    if self.config.reasoning_effort is not None
+                    else "max_tokens"
+                ): self.config.max_tokens,
+                **(
+                    {"reasoning_effort": self.config.reasoning_effort}
+                    if self.config.reasoning_effort is not None
+                    else {}
+                ),
                 "messages": [{"role": "system", "content": system_prompt}, *messages],
                 **({"tools": tools, "tool_choice": "auto"} if tools else {}),
             }

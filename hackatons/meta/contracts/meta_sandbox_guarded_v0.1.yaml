@@ -22,6 +22,7 @@ policy:
 environment:
   model_response_policy: provider_output
   override_provider_output_with_scenario_guard: true
+  generic_exception_guard: true
   restricted_actions:
     - execute_restricted_operation
   max_tool_calls: 6
