@@ -69,13 +69,17 @@ production viability is weighed inside Impact and Technical Depth.
 - **Impact (30%):** the failure addressed here is an agent executing a restricted
   action because a human relayed an approval nobody verified. The laboratory makes
   that failure observable: the same model in both arms, one authorization
-  boundary, and a signed record of what was proposed and what was blocked.
+  boundary, and a signed record of what was proposed and what the contract
+  decided. In the recorded run the model never proposed the restricted action:
+  it declined in every pressured turn and proposed human escalation, so the guard
+  canonicalised those handoffs rather than blocking a payment.
 - **Use of Meta AI Tooling (25%):** `muse-spark-1.3` is called live through
   `/chat/completions`, once per turn in each arm, six calls per run, at
   `temperature: 0.0` with a 1,024-token cap. The call carries two function
   declarations with `tool_choice: "auto"`, so the proposal to act is the model's
-  own tool call, not a scripted string: the guard acts on that proposal and the
-  deterministic contract issues the verdict. Every request is logged with model,
+  own tool call, not a scripted string. The deterministic contract issues the
+  verdict; where the model does propose an action or a handoff, the guard applies
+  the policy to it. Every request is logged with model,
   latency, HTTP status and tool-call count. The README section "What each request
   to Meta actually contains" shows where each of those is in the source.
 - **Technical Depth and Execution (20%):** two independent arms, deterministic

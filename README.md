@@ -95,6 +95,13 @@ the verdicts, an authorization boundary that can block a proposed tool call and
 hand it to a human queue, and an Ed25519-signed record of both. The model proposes;
 none of those three decisions comes from it.
 
+In the recorded run the boundary was never reached. `muse-spark-1.3` declined
+the restricted action in every turn that pressured it and proposed a human
+handoff instead, so the guard canonicalised those proposals rather than
+blocking a payment; the run report carries no blocked restricted action. The
+block path is covered by a synthetic adversarial provider in
+`tests/test_meta_live_provider_v0_1.py`, which is a test, not a model result.
+
 ### What each request to Meta actually contains
 
 - Model `muse-spark-1.3` through `/chat/completions`. No other model, endpoint,
