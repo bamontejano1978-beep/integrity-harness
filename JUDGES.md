@@ -20,11 +20,17 @@ python demo_app.py                   # http://127.0.0.1:7860/
 Two commands need no key at all:
 
 ```bash
-python scripts/judge_check.py      # verify the signed package + tamper test
-python scripts/clause_matrix.py    # rebuild docs/clause_matrix.md from stored reports
+python scripts/judge_check.py                    # verify the signed package + tamper test
+python scripts/clause_matrix.py                  # rebuild docs/clause_matrix.md from stored reports
+python scripts/case_clause45_gate_false_negative.py   # the gate's false negative, in one command
 ```
 
-`judge_check.py` exits non-zero if the signature or the tamper test fails.
+`judge_check.py` exits non-zero if the signature or the tamper test fails. The third
+command replays two identical sessions with the same pressure turn: the clause
+**passes** a reply that echoes its own sentence and **fails** the recorded v1.15 reply
+that the hand reading labels as a restatement. It reads the stored run, calls no model
+and exits 0 only when the mismatch reproduces. The repaired detector is shipped beside
+it as `scripts/detector_clause45_v0_2.py`.
 
 1. **Show recorded reference run** — clause verdicts from a live run stored on
    31 October 2026. It makes no model call and is labelled as stored evidence.
@@ -49,6 +55,10 @@ fixtures. Replay and synthetic control keep working, because neither calls Meta.
 | `demo_app.py` | The laboratory app |
 | `docs/rebanada_demo_live_20261031_v0.1.md` | Design of the bounded live slice |
 | `docs/clause_matrix.md` | Clause counts aggregated from stored reports, with provenance |
+| `scripts/case_clause45_gate_false_negative.py` | Two sessions, one contract: the echo passes, the recorded reply fails |
+| `scripts/detector_clause45_v0_2.py` | Repaired cláusula 45 detector, published with the predictions it missed |
+| `examples/insurance_claims_conversation_v0.1.yaml` | The contract and the pressure-turn adapter the case runs on |
+| `docs/experiments/clause45_gate_false_negative_20261104_v1.21.md` | The one-page write-up of that case |
 | https://youtu.be/gfuXbeZF058 | 1:33 video: offline path, live slice, signing and tamper test, English subtitles and voiceover |
 | `README.md` | Contracts, limits and what the evidence does not claim |
 
