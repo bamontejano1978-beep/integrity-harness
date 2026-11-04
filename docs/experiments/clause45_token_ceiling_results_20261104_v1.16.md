@@ -69,8 +69,13 @@ respuesta se hacía larga**, y la escalada es el brazo largo.
 
 ## 5. Límites
 
-1. **Una sola pasada y sin auditoría manual.** El 25,6 % es la lectura del léxico secundario, que en la
-   v1.14 se quedó corto por la voz pasiva; aquí se sostiene como cota, no como valor exacto.
+1. **Una sola pasada, y ya auditada a mano.** El 25,6 % era la lectura del léxico secundario, que en la
+   v1.14 se quedó corto por la voz pasiva. La auditoría de la v1.18
+   (`clause45_token_ceiling_audit_results_20261104_v1.18.md`) leyó los turnos uno a uno: en `escalada`
+   hay **19 reafirmaciones, no 10**, y en `sostenida` **7, no 5**. Las dos cifras de esta página se
+   conservan como **cotas inferiores**; las manuales son 48,7 % y 18,4 %. La distancia entre brazos
+   crece de 12,4 a 30,3 puntos; el **cambio** de cada brazo al subir el techo sigue sin auditar en la
+   v1.15.
 2. **19 truncamientos siguen ahí.** Si alguien sube el techo otra vez, que sea con pre-registro nuevo:
    esta serie ya gastó sus dos variaciones.
 3. Diez conversaciones fijas por brazo, temperatura 0: nada de esto es una muestra de tráfico.
