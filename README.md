@@ -192,8 +192,11 @@ A small Gradio UI is available in [offline_verifier/](offline_verifier/). It acc
 
 ```bash
 python -m pip install -r offline_verifier/requirements.txt
-python offline_verifier/app.py
+GRADIO_SERVER_PORT=7861 python offline_verifier/app.py
 ```
+
+Both UIs default to port 7860; the laboratory takes `DEMO_PORT` and the verifier takes
+`GRADIO_SERVER_PORT`, so the two can run at once.
 
 This is a local evidence-review aid, **not the complete project demo or a hosted service**. The participant guide shared with the team requires a three-minute demo video and a public repository, and identifies the live product as a primary judging artifact. A hosted demo is not required: the organizers ask for the public repository with setup instructions and the three-minute video. Hugging Face is not part of the plan; no Space has been created or published. Do not deploy until the access requirement, destination, authorization, and operational controls are clear. A live public Meta demo is separately blocked until its backend has a fail-closed hard request ceiling at each provider invocation, global and per-visitor quotas that survive concurrent requests/restarts, a confirmed monetary spend cap at the provider account, bounded timeouts/no automatic retries, and verified secret handling plus redacted logs. The CLI harness has a 45-second provider timeout; the laboratory's live slice uses
 a tighter 25-second one. Both cap 1,024 tokens per request, but neither bounds

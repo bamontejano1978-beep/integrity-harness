@@ -17,7 +17,11 @@ python -m pip install -e ".[demo]"   # the demo extra adds Gradio
 python demo_app.py                   # http://127.0.0.1:7860/
 ```
 
-Two commands need no key at all:
+Both apps default to port 7860. If it is taken, give each its own: the laboratory
+reads `DEMO_PORT`, the offline verifier reads `GRADIO_SERVER_PORT`, so they can run
+side by side (`DEMO_PORT=7861 python demo_app.py`).
+
+Three commands need no key at all:
 
 ```bash
 python scripts/judge_check.py                    # verify the signed package + tamper test
@@ -39,8 +43,10 @@ it as `scripts/detector_clause45_v0_2.py`.
    fixture, not a Meta model output.
 3. **Run live slice** — needs a Meta API key on the server. Three scenarios,
    at most 6 calls, 1,024 tokens, 25 s per call, no retries.
-4. **Sign package**, then **Verify** and **Alter one byte** to see the Ed25519
-   signature accept the original and reject a re-hashed tampered copy.
+4. **Sign package**, then **Verify** and **Alter one byte** — these three need a
+   completed live slice, so without a key they answer `Run a live slice before
+   signing`. The same pair of checks, on the shipped package and with no key, is
+   the offline verifier below (or `judge_check.py` from the command line).
 
 If no key is configured the app says so in one line and does not fall back to
 fixtures. Replay and synthetic control keep working, because neither calls Meta.
@@ -67,8 +73,12 @@ Verify the signed package without a key:
 
 ```bash
 python -m pip install -r offline_verifier/requirements.txt
-python offline_verifier/app.py    # upload the ZIP, run verify and tamper test
+GRADIO_SERVER_PORT=7861 python offline_verifier/app.py   # http://127.0.0.1:7861/
 ```
+
+Upload `evidence/meta-heldout-live-20261028-signed.zip`, press **Verify package**
+(`valid Ed25519 signature; 100 artifacts verified`) and then **Run tamper test**:
+one byte changes and the manifest is re-hashed, and the signature still rejects it.
 
 ## How this maps to the published rubric
 
