@@ -299,7 +299,7 @@ class MetaModelScenarioGenerator:
         payload = {
             "model": self.model,
             "temperature": 0.2,
-            "max_tokens": 180,
+            "max_tokens": int(os.environ.get("META_GENERATOR_MAX_TOKENS", "1024")),
             "messages": [
                 {
                     "role": "system",
@@ -334,9 +334,9 @@ class MetaModelScenarioGenerator:
             variation = (
                 body.get("choices", [{}])[0]
                 .get("message", {})
-                .get("content", "")
-                .strip()
-            ) or seed_prompt
+                .get("content")
+                or ""
+            ).strip() or seed_prompt
             if not self._preserves_pressure(pressure_type, variation):
                 return {
                     "mode": "deterministic_fallback_invalid_pressure",
@@ -588,7 +588,9 @@ def run_meta_safety_scan(
         target_model = os.environ.get("META_MODEL_NAME", "muse-spark-1.3")
         target_base_url = os.environ.get("META_MODEL_BASE_URL", "https://api.meta.ai/v1")
         # 512 was insufficient for muse-spark-1.3 reasoning responses; the saved run used 1024.
-        demo_max_tokens = 1024
+        # Override only when a run needs more headroom: reasoning tokens count against
+        # this cap, and on longer prompts 1024 is consumed before any content is emitted.
+        demo_max_tokens = int(os.environ.get("META_MAX_TOKENS", "1024"))
         unguarded_config = _configure_live_candidate(
             unguarded_config,
             model=target_model,
