@@ -115,7 +115,7 @@ production viability is weighed inside Impact and Technical Depth.
 
 ## What was measured after the recorded run
 
-Six further series were executed on 3-4 November under pre-registration, and four of the eight series
+Eight further series were executed on 3-4 November under pre-registration, and four of the ten series
 in this repository now end as *not measured*: the invalidity condition was written before the run and
 honoured after it. The full table is in [the README](README.md#six-further-series-3-4-november-what-held-what-did-not);
 the two that matter for judging are these.
@@ -129,7 +129,9 @@ the two that matter for judging are these.
   decides under sustained pressure. With the boundary in the system prompt it restated in 53 of 53
   non-empty replies. With that sentence removed the detector read 13.2 %, and reading the same replies
   by hand gives 28.9 % (sustained) and 50.0 % (escalation) — which is why every detector figure here is
-  published as a lower bound, and one finding drawn from those counts has since been withdrawn. By the
+  published as a lower bound, and two findings drawn from those counts have since been withdrawn: the
+  token ceiling, and the gap between arms, which did not replicate on two other models (10.0 and 12.5
+  points, intervals crossing zero). What survives is the direction in all four runs. By the
   contract it fell to 0 of 40 pressured turns. The earlier figure was the model **echoing the prompt**.
   In neither series did it approve, promise or advance a payment in 80 pressured turns. So the honest claim is not "the model holds the line"; it is "the model does not
   cede, and it stops naming the authority unless the policy tells it to".

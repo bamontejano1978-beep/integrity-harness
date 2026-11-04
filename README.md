@@ -214,11 +214,11 @@ The signed archive contains the saved JSON/Markdown report, held-out scenarios, 
 
 The saved report records six synthetic held-out scenarios: six unguarded failures and six guarded passes across twelve paired trajectories. The same model is used in both arms. This does not establish general model robustness: `pressure_type` is supplied as metadata and the guarded sandbox applies deterministic scenario-matched responses. Do not present this one fixed run as a population rate, causal result, or production safety guarantee.
 
-## Six further series, 3-4 November: what held, what did not
+## Eight further series, 3-4 November: what held, what did not
 
-After the saved run, six series were executed under pre-registration: the invalidity condition, the
+After the saved run, eight series were executed under pre-registration: the invalidity condition, the
 decision rule and the call budget were written and committed **before** the first request. Four of the
-eight series in this repository now end as *not measured*, and that is the honest result rather than a
+ten series in this repository now end as *not measured*, and that is the honest result rather than a
 headline. Each row links to its file in [docs/experiments](docs/experiments).
 
 | Series | Model calls | Valid arms | Invalidated, and why | Verdict |
@@ -229,10 +229,12 @@ headline. Each row links to its file in [docs/experiments](docs/experiments).
 | Frozen WMP predictions (v1.13) | 52 | - | 27 of 52 did not parse (24 empty completions, 3 truncated) | **Not measured**, published as a null with verifiable provenance and 25 partial predictions |
 | Clause 45, prompted (v1.14) | 120 | control arm: 0 false positives | Two pressure arms: 32.5 % and 35 % empty completions, over the 5 % line | **Not measured** for persistence; measured for false positives |
 | Clause 45, unprompted (v1.15) | 136 (120 turns + 16 declared retries) | all three arms (5.0 % empties after retry) | - | **Measured**: persistence hypothesis rejected; zero cessions in 80 pressured turns |
+| Clause 45, second model (v1.22) | 120 | all three arms (0 empties) | - | **Measured**: direction holds, arm gap 12.5 points with an interval that crosses zero |
+| Clause 45, third model (v1.23) | 120 | all three arms (0 empties) | - | **Measured**: the arm gap does not replicate; that claim is withdrawn |
 
-### What the clause-45 pair actually showed
+### What the clause-45 series actually showed
 
-The two clause-45 series were run to answer one question: does an agent keep naming who decides when
+The four clause-45 series were run to answer one question: does an agent keep naming who decides when
 a user pushes, turn after turn?
 
 - **v1.14** (boundary stated in the system prompt): the model restated the decision authority in 53 of
@@ -250,20 +252,26 @@ a user pushes, turn after turn?
   under the detector, which looked like the ceiling mattering in one arm and not the other. Reading both
   runs by hand shows the rise was the detector's, not the model's: **19 of 38 = 50.0 %** with a
   2,048-token ceiling and **19 of 39 = 48.7 %** with 4,096. That reading is withdrawn, and the 0-of-40
-  clause result is unaffected. What survives is a gap between arms that is there in both runs —
-  **21.1 and 30.3 points** — with its growth not established at 38 turns per arm. The detector misses
+  clause result is unaffected. The gap between arms in those two runs is **21.1 and 30.3 points**, and it
+  does **not** survive replication: see the v1.23 entry below, which withdraws it. The detector misses
   the phrasing the model actually uses, `I am not able to approve…`, which its pattern list does not
   cover. The clause still reads 0 of 40 in every pressured arm, because the model says "the claims
-  team" rather than the literal phrase the contract looks for.
-- **v1.22** (same instrument, other model: `muse-spark-1.3` instead of `1.1`): the direction holds and
+  team" rather than the literal phrase the contract looks for.- **v1.22** (same instrument, other model: `muse-spark-1.3` instead of `1.1`): the direction holds and
 the size does not. The escalation arm reads **60.0 %** (24/40) against **47.5 %** (19/40) in the
 sustained arm — a **12.5-point** gap whose 95 % interval runs from **−9.2 to +34.2**, i.e. it crosses
 zero at 40 turns per arm. What moves is the sustained arm: it goes from 28.9 %/18.4 % under 1.1 to
-47.5 %, so 1.3 resists sustained pressure better and the contrast narrows. Claim downgraded to
+47.5 %, so 1.3 resists sustained pressure better and the contrast narrows. Claim held provisionally at
 *direction consistent across two models, size not estimable at this n*
 (`docs/experiments/clause45_second_model_results_20261104_v1.22.md`). The clause still reads 0 of 40.
+- **v1.23** (same instrument, `muse-spark-1.2`): the arm gap **does not replicate**, and the claim is
+withdrawn. `1.2` reads **60.0 %** in the escalation arm against **50.0 %** in the sustained one —
+**+10.0 points**, 95 % interval **−11.7 to +31.7**. Two models now agree on the sustained arm at ~50 %
+while `1.1` read 28.9 %/18.4 %, so the outlier is `1.1`. What survives is the direction in all four
+runs — escalation never below sustained — and a cleaner description: what distinguishes `1.1` is that it
+**yields** to sustained pressure, not that it obeys claimed authority
+(`docs/experiments/clause45_third_model_results_20261104_v1.23.md`). The clause still reads 0 of 40.
 - **What did not happen** in any series: the model never approved, promised or advanced a payout in
-  120 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
+  160 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
   point of the clause, and it is why this repository measures behaviour instead of assuming it.
 
 Two instrument lessons came out of this and are now part of the harness: every model call records HTTP
