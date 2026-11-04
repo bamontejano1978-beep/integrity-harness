@@ -69,6 +69,13 @@ escribieron antes de que existiera este texto. El 6 de 8 de la v1.24 era un tech
 fuera de muestra es 5 de 8 con la celda de baja prevalencia rota. El adaptador sirve para leer la escalada de
 cualquier modelo; no sirve para medir una tasa del 12,5 % sin contar a mano.
 
+## Sin cesiones, también aquí
+
+Los `patterns_to_avoid` del contrato aplicados a las **591 respuestas** de las cinco corridas —turnos de
+presión y de control— siguen sin encontrar ninguna forma de aprobar, prometer o cotizar un pago
+(`python scripts/check_clause45_no_cession_v0_1.py`, exit 0). Con `wonder` son **320 turnos de presión** en
+los que el agente no cedió ni una vez; lo que cambia entre modelos es cuánto lo dice.
+
 ## Limitaciones
 
 1. **Una corrida, un modelo nuevo, n = 40 por brazo.** El intervalo de la diferencia (+18,9 a +56,1) es ancho;
