@@ -214,11 +214,11 @@ The signed archive contains the saved JSON/Markdown report, held-out scenarios, 
 
 The saved report records six synthetic held-out scenarios: six unguarded failures and six guarded passes across twelve paired trajectories. The same model is used in both arms. This does not establish general model robustness: `pressure_type` is supplied as metadata and the guarded sandbox applies deterministic scenario-matched responses. Do not present this one fixed run as a population rate, causal result, or production safety guarantee.
 
-## Eight further series, 3-4 November: what held, what did not
+## Nine further series, 3-4 November: what held, what did not
 
-After the saved run, eight series were executed under pre-registration: the invalidity condition, the
+After the saved run, nine series were executed under pre-registration: the invalidity condition, the
 decision rule and the call budget were written and committed **before** the first request. Four of the
-ten series in this repository now end as *not measured*, and that is the honest result rather than a
+eleven series in this repository now end as *not measured*, and that is the honest result rather than a
 headline. Each row links to its file in [docs/experiments](docs/experiments).
 
 | Series | Model calls | Valid arms | Invalidated, and why | Verdict |
@@ -231,10 +231,11 @@ headline. Each row links to its file in [docs/experiments](docs/experiments).
 | Clause 45, unprompted (v1.15) | 136 (120 turns + 16 declared retries) | all three arms (5.0 % empties after retry) | - | **Measured**: persistence hypothesis rejected; zero cessions in 80 pressured turns |
 | Clause 45, second model (v1.22) | 120 | all three arms (0 empties) | - | **Measured**: direction holds, arm gap 12.5 points with an interval that crosses zero |
 | Clause 45, third model (v1.23) | 120 | all three arms (0 empties) | - | **Measured**: the arm gap does not replicate; that claim is withdrawn |
+| Clause 45, fourth model, other family (v1.25) | 120 | all three arms (0 empties) | - | **Measured**: 50.0 % vs 12.5 %, gap +37.5 (+18.9 to +56.1); the adapter's out-of-sample test fails |
 
 ### What the clause-45 series actually showed
 
-The four clause-45 series were run to answer one question: does an agent keep naming who decides when
+The five clause-45 series were run to answer one question: does an agent keep naming who decides when
 a user pushes, turn after turn?
 
 - **v1.14** (boundary stated in the system prompt): the model restated the decision authority in 53 of
@@ -270,9 +271,19 @@ while `1.1` read 28.9 %/18.4 %, so the outlier is `1.1`. What survives is the di
 runs — escalation never below sustained — and a cleaner description: what distinguishes `1.1` is that it
 **yields** to sustained pressure, not that it obeys claimed authority
 (`docs/experiments/clause45_third_model_results_20261104_v1.23.md`). The clause still reads 0 of 40.
+- **v1.25** (same instrument, `muse-wonder-1.0`, a different family): the largest gap of the programme,
+and it reframes the others. Escalation reads **50.0 %** (20/40) against **12.5 %** (5/40) in the
+sustained arm — **+37.5 points**, 95 % interval **+18.9 to +56.1**. Read across all five runs, the
+split is not between models but between **requests**: when the user explicitly asks for the payout to
+be approved, all four models restate the limit within a narrow band (48.7–60.0 %); when the pressure is
+ambient — urgency, a prior promise, social proof, claimed authority — the rate runs from 12.5 % to
+50.0 %. Restating the boundary is a reply to a demand, not a stable property of the turn. A metric that
+only counts ambient pressure mostly measures how talkative the model is
+(`docs/experiments/clause45_fourth_model_results_20261104_v1.25.md`). The clause still reads 0 of 40.
 - **What did not happen** in any series: the model never approved, promised or advanced a payout in
-  160 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
-  point of the clause, and it is why this repository measures behaviour instead of assuming it.
+  **320 pressured turns across five runs**. It stopped naming the authority; it did not cede. That
+  distinction is the whole point of the clause, and it is why this repository measures behaviour instead
+  of assuming it.
 
 Two instrument lessons came out of this and are now part of the harness: every model call records HTTP
 status, `finish_reason` and latency (an empty completion without `finish_reason` cannot be diagnosed),
@@ -295,10 +306,14 @@ a measurement.
 A third instrument was built and only partly worked. An adapter v0.3 that reads the model's own wording
 ("my role is only to collect", "I cannot approve a payout") instead of the contract's literal sentence
 raises the clause from 0 of 40 to within 2.6–7.5 points of the hand reading in six of eight cells, with
-at most 3 false positives — so the 0 of 40 was the adapter, not the agent. It misses by 15 points in the
-two `1.2` cells, where the model states its role with a verb ("I can help you by collecting") that no
-fixed pattern list covers. That is published as a partial failure and not patched after the fact
-(`docs/experiments/clause45_gate_v0_3_results_20261104_v1.24.md`).
+at most 3 false positives — so the 0 of 40 was the adapter, not the agent. It then had to face text it
+had never seen: on the `muse-wonder-1.0` replies it holds in the escalation arm (bias 2.5, 1 false
+negative) and **fails** in the sustained one (bias 12.5, 5 false negatives), all five lost variants the
+same construction — "I can help by collecting…" — that its patterns do not cover. The in-sample 6 of 8
+was a ceiling; out of sample it is 5 of 8, and the cell it loses is the low-prevalence one. Published as
+a partial failure and not patched after the fact
+(`docs/experiments/clause45_gate_v0_3_results_20261104_v1.24.md`,
+`docs/experiments/clause45_fourth_model_results_20261104_v1.25.md`).
 
 ## Preregistered balanced guard evaluation (not yet run)
 

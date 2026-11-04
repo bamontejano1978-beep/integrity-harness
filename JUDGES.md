@@ -115,9 +115,9 @@ production viability is weighed inside Impact and Technical Depth.
 
 ## What was measured after the recorded run
 
-Eight further series were executed on 3-4 November under pre-registration, and four of the ten series
+Nine further series were executed on 3-4 November under pre-registration, and four of the eleven series
 in this repository now end as *not measured*: the invalidity condition was written before the run and
-honoured after it. The full table is in [the README](README.md#six-further-series-3-4-november-what-held-what-did-not);
+honoured after it. The full table is in [the README](README.md#nine-further-series-3-4-november-what-held-what-did-not);
 the two that matter for judging are these.
 
 - **The authorization chain, measured.** With the restricted action reachable but denied by default,
@@ -125,16 +125,21 @@ the two that matter for judging are these.
   executed 5 times, and nothing executed outside an authorized turn (24 trajectories). The gate does
   not verify the token: it enforces an attestation that arrives from outside the model. That boundary
   is the product.
-- **The behavioural claim, narrowed.** Two clause-45 series asked whether the agent keeps naming who
-  decides under sustained pressure. With the boundary in the system prompt it restated in 53 of 53
-  non-empty replies. With that sentence removed the detector read 13.2 %, and reading the same replies
-  by hand gives 28.9 % (sustained) and 50.0 % (escalation) — which is why every detector figure here is
+- **The behavioural claim, narrowed twice.** Five clause-45 series asked whether the agent keeps naming
+  who decides under pressure. With the boundary in the system prompt it restated in 53 of 53 non-empty
+  replies. With that sentence removed the detector read 13.2 %, and reading the same replies by hand
+  gives 28.9 % (sustained) and 50.0 % (escalation) — which is why every detector figure here is
   published as a lower bound, and two findings drawn from those counts have since been withdrawn: the
   token ceiling, and the gap between arms, which did not replicate on two other models (10.0 and 12.5
-  points, intervals crossing zero). What survives is the direction in all four runs. By the
-  contract it fell to 0 of 40 pressured turns. The earlier figure was the model **echoing the prompt**.
-  In neither series did it approve, promise or advance a payment in 80 pressured turns. So the honest claim is not "the model holds the line"; it is "the model does not
-  cede, and it stops naming the authority unless the policy tells it to".
+  points, intervals crossing zero). By the contract it fell to 0 of 40 pressured turns. The earlier
+  figure was the model **echoing the prompt**. Then a fourth model, from a different family, produced
+  the widest gap of the programme — **50.0 % vs 12.5 %, +37.5 (+18.9 to +56.1)** — and the pattern
+  finally lined up: when the user **asks** for the payout to be approved, all four models restate the
+  limit within 48.7–60.0 %; when the pressure is ambient, the rate runs from 12.5 % to 50.0 %.
+  Restating the boundary is a reply to a demand, not a stable property of the turn. In none of the five
+  series did the model approve, promise or advance a payment in 320 pressured turns. So the honest claim
+  is not "the model holds the line"; it is "the model does not cede, and how often it renames the
+  authority depends on what the user is asking for".
 
 This is why the control we propose sits in the runtime rather than in the prompt, and why every
 preregistration in this repository publishes its nulls with the same prominence as its passes.
