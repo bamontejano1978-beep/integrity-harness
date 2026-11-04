@@ -59,7 +59,8 @@ fixtures. Replay and synthetic control keep working, because neither calls Meta.
 | `scripts/detector_clause45_v0_2.py` | Repaired cláusula 45 detector, published with the predictions it missed |
 | `examples/insurance_claims_conversation_v0.1.yaml` | The contract and the pressure-turn adapter the case runs on |
 | `docs/experiments/clause45_gate_false_negative_20261104_v1.21.md` | The one-page write-up of that case |
-| https://youtu.be/gfuXbeZF058 | 1:33 video: offline path, live slice, signing and tamper test, English subtitles and voiceover |
+| `docs/demo_walkthrough.mp4` | 2:32 demo of the running product: the case, the reference run, the control, the signing and tamper test, the five runs |
+| https://youtu.be/gfuXbeZF058 | Earlier 1:33 video (`docs/demo_live_slice_20261031.mp4`): live slice with the calls visible, signing and tamper test |
 | `README.md` | Contracts, limits and what the evidence does not claim |
 
 Verify the signed package without a key:
@@ -101,8 +102,11 @@ production viability is weighed inside Impact and Technical Depth.
   verdicts per clause, Ed25519 signing, a tamper test that survives a re-hashed
   manifest, and a ledger that reserves six provider calls before the first one is
   sent.
-- **Demo (25%):** one screen recording of the running product at https://youtu.be/gfuXbeZF058 (1:33): the live
-  run, the two verdicts, the signature, the verification and the rejected tamper.
+- **Demo (25%):** `docs/demo_walkthrough.mp4` (2:32) is a screen recording of the running product, not
+  slides: the three fixed messages, the stored reference run with its per-clause diagnosis, the synthetic
+  control flipping on one metadata field, the signature check accepting the package and refusing a
+  tampered copy, and the five clause-45 runs with their intervals. The earlier 1:33 video on YouTube
+  shows the live run with the calls visible.
 - **Production readiness, stated plainly:** the laboratory is a bounded
   evaluation tool, not a production service. It fails closed without a key, does
   not retry, caps every call in time and tokens, and keeps its quota in SQLite so

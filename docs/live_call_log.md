@@ -1,6 +1,7 @@
 # Live Meta call log, recorded run
 
-Provenance for the calls shown in `docs/demo_walkthrough.mp4`. Every request below
+Provenance for the calls shown in `docs/demo_live_slice_20261031.mp4` (the earlier 1:33 video; the
+current `docs/demo_walkthrough.mp4` shows the stored run, not a live call). Every request below
 was made by this repository's own code against the Meta Model API while the video
 was being recorded; none is a replay or a fixture.
 

@@ -121,7 +121,17 @@ body, .gradio-container { background: #070c18 !important; color: #dfeaf3 !import
 .gradio-container .main > .wrap { padding: 26px 30px 70px !important; }
 .gradio-container .prose, .gradio-container .prose p, .gradio-container .prose li { color: #c4d4e1 !important; }
 .gradio-container .prose h1, .gradio-container .prose h2, .gradio-container .prose h3 { color: #effbff !important; }
-.gradio-container .prose code { color: #95f9e9 !important; }
+.gradio-container.gradio-container code {
+  background: #0b1a28 !important; color: #95f9e9 !important; border: 1px solid #263d4c;
+  border-radius: 6px; padding: 1px 6px; white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important; word-break: break-word;
+}
+.gradio-container.gradio-container th { background: #122436 !important; color: #d1dfeb !important; }
+.gradio-container.gradio-container td { background: #0d1a29 !important; color: #c4d4e1 !important; }
+.gradio-container.gradio-container pre code, .gradio-container.gradio-container code.language-text {
+  display: block !important; white-space: pre-wrap !important; overflow-wrap: anywhere !important;
+  overflow-x: hidden !important; padding: 10px 12px !important;
+}
 .gradio-container .prose pre { background: #09131f !important; border: 1px solid #263d4c; border-radius: 10px; }
 .gradio-container button { border-radius: 10px !important; font-weight: 650 !important; letter-spacing: .01em; }
 .gradio-container button.primary { background: #45e7d4 !important; color: #06202a !important; border: 1px solid #7ffff0 !important; box-shadow: 0 0 24px #26d7c333; }
