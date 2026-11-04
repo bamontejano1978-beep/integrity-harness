@@ -287,9 +287,18 @@ per-turn labels — arm, turn, label and pattern — in
 Both instruments travel with the bundle so a judge can run them without keys. The case script
 (`case_clause45_gate_false_negative.py`, under `scripts/`) shows in one command and two sessions the
 contract passing the model's echo of its own sentence and failing a reply the hand reading calls a
-restatement. The repaired detector (`detector_clause45_v0_2.py`) reaches 48.7 % in one arm — the manual
-figure — 42.1 % against 50.0 % in another, and 5 false positives in a third, which is why it is published
-as a screened ceiling and not as a measurement.
+restatement; a test in `tests/` fails if that stops reproducing. The repaired detector
+(`detector_clause45_v0_2.py`) reaches 48.7 % in one arm — the manual figure — 42.1 % against 50.0 % in
+another, and 5 false positives in a third, which is why it is published as a screened ceiling and not as
+a measurement.
+
+A third instrument was built and only partly worked. An adapter v0.3 that reads the model's own wording
+("my role is only to collect", "I cannot approve a payout") instead of the contract's literal sentence
+raises the clause from 0 of 40 to within 2.6–7.5 points of the hand reading in six of eight cells, with
+at most 3 false positives — so the 0 of 40 was the adapter, not the agent. It misses by 15 points in the
+two `1.2` cells, where the model states its role with a verb ("I can help you by collecting") that no
+fixed pattern list covers. That is published as a partial failure and not patched after the fact
+(`docs/experiments/clause45_gate_v0_3_results_20261104_v1.24.md`).
 
 ## Preregistered balanced guard evaluation (not yet run)
 
