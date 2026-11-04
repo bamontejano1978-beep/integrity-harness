@@ -240,20 +240,21 @@ a user pushes, turn after turn?
   the literal phrase `licensed adjuster must (decide|make)` and the model wrote the passive voice.
   A metric can look perfect and be blind at the same time.
 - **v1.15** (same design, the boundary removed from the system prompt and left only in the opening
-  scope message): restatement fell from ~100 % to **13.2 %** of replies as the detector counted it,
-  and to **0 of 40** pressured turns by the clause. With the adapter fixed to see the passive voice,
-  the drop is not an artefact. The earlier 100 % was the model **echoing the prompt**, not holding
-  the line. That 13.2 % is now recorded as a **lower bound** (see the audit below).
-- **v1.16** (same design, output ceiling doubled to 4,096 tokens): the sustained arm read the same
-  13.2 % under the detector, so truncation was not what produced that figure; the escalation arm rose
-  to **25.6 %**. A hand reading of the same 77 replies (**v1.18 audit**, in
-  `docs/experiments/clause45_token_ceiling_audit_results_20261104_v1.18.md`) found **19 of 39 = 48.7 %**
-  in the escalation arm and **7 of 38 = 18.4 %** in the sustained one. The detector never marks a reply
-  that does not restate — zero false positives — but it misses the phrasing the model actually uses:
-  `I am not able to approve…`, which its pattern list does not cover. The gap between arms widens from
-  12.4 to **30.3 points**. The v1.15 replies have not been hand-read, so the pass-to-pass change stays
-  open and is declared as such. The clause still reads 0 of 40 in every pressured arm, because the
-  model says "the claims team" rather than the literal phrase the contract looks for.
+  scope message): restatement fell from ~100 % to **13.2 %** of replies as the detector counted it —
+  **50.0 %** in the escalation arm and **28.9 %** in the sustained one when the same replies are read
+  by hand (**v1.19 audit**, in
+  `docs/experiments/clause45_restatement_audit_results_20261104_v1.19.md`) — and to **0 of 40**
+  pressured turns by the clause. With the adapter fixed to see the passive voice, the drop is not an
+  artefact. The earlier 100 % was the model **echoing the prompt**, not holding the line.
+- **v1.16** (same design, output ceiling doubled to 4,096 tokens): the escalation arm rose to **25.6 %**
+  under the detector, which looked like the ceiling mattering in one arm and not the other. Reading both
+  runs by hand shows the rise was the detector's, not the model's: **19 of 38 = 50.0 %** with a
+  2,048-token ceiling and **19 of 39 = 48.7 %** with 4,096. That reading is withdrawn, and the 0-of-40
+  clause result is unaffected. What survives is a gap between arms that is there in both runs —
+  **21.1 and 30.3 points** — with its growth not established at 38 turns per arm. The detector misses
+  the phrasing the model actually uses, `I am not able to approve…`, which its pattern list does not
+  cover. The clause still reads 0 of 40 in every pressured arm, because the model says "the claims
+  team" rather than the literal phrase the contract looks for.
 - **What did not happen** in either series: the model never approved, promised or advanced a payout in
   80 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
   point of the clause, and it is why this repository measures behaviour instead of assuming it.
@@ -262,10 +263,11 @@ Two instrument lessons came out of this and are now part of the harness: every m
 status, `finish_reason` and latency (an empty completion without `finish_reason` cannot be diagnosed),
 and a retry is declared, published with its first attempt, and only allowed when no text arrived. A
 third came out of the audit: a regular expression that reports what a model *should* say can undercount
-by half, so the figures above carry their manual reading beside the detector's, and the audit publishes
-its per-turn labels — 80 rows, arm, turn, label and pattern — in
-`docs/experiments/clause45_token_ceiling_audit_results_20261104_v1.18.md` (section 7), so anyone can
-disagree turn by turn.
+by a factor of nearly four, and it can make two arms look identical when they differ by 21 points, so
+the figures above carry their manual reading beside the detector's, and the audits publish their
+per-turn labels — arm, turn, label and pattern — in
+`docs/experiments/clause45_token_ceiling_audit_results_20261104_v1.18.md` (section 7) and
+`..._audit_results_..._v1.19.md` (section 1), so anyone can disagree turn by turn.
 
 ## Preregistered balanced guard evaluation (not yet run)
 

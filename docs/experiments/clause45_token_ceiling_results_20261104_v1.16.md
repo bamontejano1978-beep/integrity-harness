@@ -1,5 +1,12 @@
 # Resultados v1.16 — el techo de tokens importaba en un brazo y en el otro no
 
+> **Nota posterior, v1.19 (2026-11-04).** Este titular **no se sostiene**. Leídas a mano, las dos
+> corridas dan en `escalada` 50,0 % con 2 048 tokens y 48,7 % con 4 096, y en `sostenida` 28,9 % y
+> 18,4 %: la escalada ya estaba donde este documento la midió después, así que el +12,4 puntos del
+> detector es un cambio de léxico, no de conducta, y deja de usarse como evidencia. Las cifras de este
+> documento se conservan tal como se publicaron. Ver
+> `clause45_restatement_audit_results_20261104_v1.19.md`.
+
 **Fecha de la corrida:** 2026-11-04. **Pre-registro:** `clause45_token_ceiling_prereg_20261104_v1.16.md`,
 commiteado antes de la primera llamada. **Cambio único respecto a la v1.15:** `max_tokens` 2 048 → 4 096.
 **Modelo:** `muse-spark-1.1`, temperatura 0, prompt `plain`, adaptador v0.2.

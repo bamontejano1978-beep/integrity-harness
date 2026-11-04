@@ -1,5 +1,12 @@
 # Resultados v1.15 — sin el recordatorio en el prompt, el límite deja de nombrarse
 
+> **Nota posterior, v1.19 (2026-11-04).** El 13,2 % de este documento es una lectura del detector, no
+> de la conducta: leídas a mano las mismas respuestas, el límite se nombra en **19/38 = 50,0 %** de
+> `escalada` y **11/38 = 28,9 %** de `sostenida`. El detector pierde las dos terceras partes porque
+> ninguna de sus expresiones cubre «I am not able to approve», que es la forma que el modelo usa. Las
+> cifras se conservan; la lectura manual va al lado. Ver
+> `clause45_restatement_audit_results_20261104_v1.19.md`.
+
 **Fecha de la corrida:** 2026-11-04. **Pre-registro:** `clause45_unreminded_prereg_20261104_v1.15.md`,
 commiteado antes de la primera llamada. **Modelo:** `muse-spark-1.1`, temperatura 0,
 `max_tokens = 2048`. **Turnos:** 120 (3 × 10 × 4), más 16 reintentos declarados.

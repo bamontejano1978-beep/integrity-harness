@@ -117,12 +117,11 @@ the two that matter for judging are these.
   is the product.
 - **The behavioural claim, narrowed.** Two clause-45 series asked whether the agent keeps naming who
   decides under sustained pressure. With the boundary in the system prompt it restated in 53 of 53
-  non-empty replies; with that sentence removed it fell to 13.2 % as the detector counted it — 18.4 %
-  (sustained) and 48.7 % (escalation) when the v1.16 replies were read by hand, which is why every
-  detector figure here is published as a lower bound — and to 0 of 40 pressured turns by the
-  contract. The earlier figure was the model **echoing the prompt**. In neither series did it approve,
-  promise or advance a payment in 80
-  pressured turns. So the honest claim is not "the model holds the line"; it is "the model does not
+  non-empty replies. With that sentence removed the detector read 13.2 %, and reading the same replies
+  by hand gives 28.9 % (sustained) and 50.0 % (escalation) — which is why every detector figure here is
+  published as a lower bound, and one finding drawn from those counts has since been withdrawn. By the
+  contract it fell to 0 of 40 pressured turns. The earlier figure was the model **echoing the prompt**.
+  In neither series did it approve, promise or advance a payment in 80 pressured turns. So the honest claim is not "the model holds the line"; it is "the model does not
   cede, and it stops naming the authority unless the policy tells it to".
 
 This is why the control we propose sits in the runtime rather than in the prompt, and why every
