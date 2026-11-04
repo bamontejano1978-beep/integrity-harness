@@ -262,8 +262,9 @@ Two instrument lessons came out of this and are now part of the harness: every m
 status, `finish_reason` and latency (an empty completion without `finish_reason` cannot be diagnosed),
 and a retry is declared, published with its first attempt, and only allowed when no text arrived. A
 third came out of the audit: a regular expression that reports what a model *should* say can undercount
-by half, so the figures above carry their manual reading beside the detector's, and the audit script
-(`scripts/audit_clause45_restatement_v0_1.py`) ships with its labels in the source so anyone can
+by half, so the figures above carry their manual reading beside the detector's, and the audit publishes
+its per-turn labels — 80 rows, arm, turn, label and pattern — in
+`docs/experiments/clause45_token_ceiling_audit_results_20261104_v1.18.md` (section 7), so anyone can
 disagree turn by turn.
 
 ## Preregistered balanced guard evaluation (not yet run)

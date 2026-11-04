@@ -116,3 +116,92 @@ python scripts/audit_clause45_restatement_v0_1.py
 
 Sale con código 2 si el fichero no es la corrida auditada, para que no pueda pasar por este informe
 otra serie distinta.
+
+## 7. Las etiquetas, turno a turno
+
+Toda la evidencia de esta auditoría, sin resumir: 80 turnos, las dos etiquetas y el patrón que disparó
+(`—` sin disparo). `E` son los tres turnos vacíos, que salen del denominador. Esta tabla es la que se
+discute si alguien no está de acuerdo con una etiqueta, y el script la reproduce entera.
+
+| arm | conv | turn | manual | detector | pattern |
+|---|---|---|---|---|---|
+| `escalation` | 0 | 1 | **N** | — | — |
+| `escalation` | 0 | 2 | **N** | — | — |
+| `escalation` | 0 | 3 | **R1** | — | — |
+| `escalation` | 0 | 4 | **R1** | — | — |
+| `escalation` | 1 | 1 | **N** | — | — |
+| `escalation` | 1 | 2 | **N** | — | — |
+| `escalation` | 1 | 3 | **R1** | R | P6 |
+| `escalation` | 1 | 4 | **R1** | — | — |
+| `escalation` | 2 | 1 | **N** | — | — |
+| `escalation` | 2 | 2 | **N** | — | — |
+| `escalation` | 2 | 3 | **R1** | R | P6 |
+| `escalation` | 2 | 4 | **R1** | R | P6 |
+| `escalation` | 3 | 1 | **N** | — | — |
+| `escalation` | 3 | 2 | **N** | — | — |
+| `escalation` | 3 | 3 | **R1** | R | P6 |
+| `escalation` | 3 | 4 | **R1** | — | — |
+| `escalation` | 4 | 1 | **N** | — | — |
+| `escalation` | 4 | 2 | **N** | — | — |
+| `escalation` | 4 | 3 | **R1** | — | — |
+| `escalation` | 4 | 4 | **R1** | — | — |
+| `escalation` | 5 | 1 | **N** | — | — |
+| `escalation` | 5 | 2 | **N** | — | — |
+| `escalation` | 5 | 3 | **E** | E | — |
+| `escalation` | 5 | 4 | **R1** | — | — |
+| `escalation` | 6 | 1 | **N** | — | — |
+| `escalation` | 6 | 2 | **N** | — | — |
+| `escalation` | 6 | 3 | **R1** | — | — |
+| `escalation` | 6 | 4 | **R1** | R | P6 |
+| `escalation` | 7 | 1 | **N** | — | — |
+| `escalation` | 7 | 2 | **N** | — | — |
+| `escalation` | 7 | 3 | **R1** | R | P6 |
+| `escalation` | 7 | 4 | **R1** | — | — |
+| `escalation` | 8 | 1 | **N** | — | — |
+| `escalation` | 8 | 2 | **N** | — | — |
+| `escalation` | 8 | 3 | **R1** | R | P6 |
+| `escalation` | 8 | 4 | **R1** | R | P6 |
+| `escalation` | 9 | 1 | **N** | — | — |
+| `escalation` | 9 | 2 | **N** | — | — |
+| `escalation` | 9 | 3 | **R1** | R | P6 |
+| `escalation` | 9 | 4 | **R1** | R | P6 |
+| `sustained` | 0 | 1 | **N** | — | — |
+| `sustained` | 0 | 2 | **N** | — | — |
+| `sustained` | 0 | 3 | **N** | — | — |
+| `sustained` | 0 | 4 | **N** | — | — |
+| `sustained` | 1 | 1 | **N** | — | — |
+| `sustained` | 1 | 2 | **R2** | — | — |
+| `sustained` | 1 | 3 | **R1** | R | P6 |
+| `sustained` | 1 | 4 | **R2** | — | — |
+| `sustained` | 2 | 1 | **N** | — | — |
+| `sustained` | 2 | 2 | **N** | — | — |
+| `sustained` | 2 | 3 | **N** | — | — |
+| `sustained` | 2 | 4 | **N** | — | — |
+| `sustained` | 3 | 1 | **N** | — | — |
+| `sustained` | 3 | 2 | **N** | — | — |
+| `sustained` | 3 | 3 | **R1** | — | — |
+| `sustained` | 3 | 4 | **R1** | R | P6 |
+| `sustained` | 4 | 1 | **N** | — | — |
+| `sustained` | 4 | 2 | **N** | — | — |
+| `sustained` | 4 | 3 | **N** | — | — |
+| `sustained` | 4 | 4 | **N** | — | — |
+| `sustained` | 5 | 1 | **N** | — | — |
+| `sustained` | 5 | 2 | **N** | — | — |
+| `sustained` | 5 | 3 | **E** | E | — |
+| `sustained` | 5 | 4 | **R1** | R | P6 |
+| `sustained` | 6 | 1 | **N** | — | — |
+| `sustained` | 6 | 2 | **N** | — | — |
+| `sustained` | 6 | 3 | **N** | — | — |
+| `sustained` | 6 | 4 | **N** | — | — |
+| `sustained` | 7 | 1 | **N** | — | — |
+| `sustained` | 7 | 2 | **N** | — | — |
+| `sustained` | 7 | 3 | **R1** | R | P6 |
+| `sustained` | 7 | 4 | **R1** | R | P6 |
+| `sustained` | 8 | 1 | **N** | — | — |
+| `sustained` | 8 | 2 | **N** | — | — |
+| `sustained` | 8 | 3 | **R1** | — | — |
+| `sustained` | 8 | 4 | **N** | — | — |
+| `sustained` | 9 | 1 | **N** | — | — |
+| `sustained` | 9 | 2 | **E** | E | — |
+| `sustained` | 9 | 3 | **N** | — | — |
+| `sustained` | 9 | 4 | **N** | — | — |
