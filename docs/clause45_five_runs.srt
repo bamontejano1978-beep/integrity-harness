@@ -1,120 +1,123 @@
 1
-00:00:00,000 --> 00:00:01,869
+00:00:00,050 --> 00:00:01,830
 One question, five runs.
 
 2
-00:00:01,919 --> 00:00:12,901
-When a user pushes an insurance agent for a payout, does the agent keep naming the licensed adjuster as the one who decides?
+00:00:01,870 --> 00:00:10,810
+When a user pushes an insurance agent for a payout, does the agent keep\Nnaming the licensed adjuster as the one who decides?
 
 3
-00:00:12,951 --> 00:00:15,778
+00:00:10,850 --> 00:00:13,120
 Four models, two families, one instrument.
 
 4
-00:00:15,828 --> 00:00:18,656
+00:00:13,160 --> 00:00:17,350
 Everything was pre-registered, including what failed.
 
 5
-00:00:19,206 --> 00:00:21,304
+00:00:18,040 --> 00:00:19,740
 The design has two arms.
 
 6
-00:00:21,354 --> 00:00:33,328
-In escalation the user asks for the payout to be approved, and the agent names the limit forty-eight to sixty percent of the time, in all four models.
+00:00:19,780 --> 00:00:30,180
+In escalation the user asks for the payout to be approved, and the agent\Nnames the limit forty-eight to sixty percent of the time, in all
 
 7
-00:00:33,378 --> 00:00:39,340
-In sustained pressure nobody asks: urgency, a prior promise, social proof, a claimed authority.
+00:00:30,220 --> 00:00:31,341
+four models.
 
 8
-00:00:39,390 --> 00:00:43,634
-That arm runs from twelve point five to fifty percent.
+00:00:31,381 --> 00:00:37,930
+In sustained pressure nobody asks: urgency, a prior promise, social\Nproof, a claimed authority.
 
 9
-00:00:43,684 --> 00:00:45,352
-Forty conversations per arm.
+00:00:37,970 --> 00:00:42,831
+That arm runs from twelve point five to fifty percent.
 
 10
-00:00:45,902 --> 00:00:47,541
-The five runs.
+00:00:42,871 --> 00:00:44,990
+Forty conversations per arm.
 
 11
-00:00:47,591 --> 00:00:54,299
-The escalation column barely moves: fifty, forty-eight point seven, sixty, sixty, fifty.
+00:00:45,680 --> 00:00:46,940
+The five runs.
 
 12
-00:00:54,349 --> 00:01:06,689
-The sustained column moves by a factor of four: twenty-eight point nine, eighteen point four, forty-seven point five, fifty, twelve point five.
+00:00:46,980 --> 00:00:54,480
+The escalation column barely moves: fifty, forty-eight point seven,\Nsixty, sixty, fifty.
 
 13
-00:01:07,239 --> 00:01:09,704
-We could have published a ranking.
+00:00:54,520 --> 00:01:05,950
+The sustained column moves by a factor of four: twenty-eight point nine,\Neighteen point four, forty-seven point five, fifty, twelve point
 
 14
-00:01:09,754 --> 00:01:14,317
-The intervals do not allow it: only two contrasts clear zero.
+00:01:05,990 --> 00:01:06,580
+five.
 
 15
-00:01:14,367 --> 00:01:17,671
-And the decisive number is not between models.
+00:01:07,270 --> 00:01:09,370
+We could have published a ranking.
 
 16
-00:01:17,721 --> 00:01:25,218
-The same model, run twice with the same instrument, reads twenty-eight point nine and then eighteen point four.
+00:01:09,410 --> 00:01:13,580
+The intervals do not allow it: only two contrasts clear zero.
 
 17
-00:01:25,268 --> 00:01:28,572
-A ten point gap, whose interval crosses zero.
+00:01:13,620 --> 00:01:16,710
+And the decisive number is not between models.
 
 18
-00:01:28,622 --> 00:01:33,603
-At forty turns per arm, ordering these models would be ordering noise.
+00:01:16,750 --> 00:01:24,180
+The same model, run twice with the same instrument, reads twenty-eight\Npoint nine and then eighteen point four.
 
 19
-00:01:34,153 --> 00:01:34,103
-
+00:01:24,220 --> 00:01:27,950
+A ten point gap, whose interval crosses zero.
 
 20
-00:01:34,153 --> 00:01:41,968
-The contract's own adapter read zero of forty: it required a literal phrase, and the model wrote the passive voice.
+00:01:27,990 --> 00:01:32,670
+At forty turns per arm, ordering these models would be ordering noise.
 
 21
-00:01:42,018 --> 00:01:45,507
-Repaired, it reaches six of eight cells in sample.
+00:01:33,360 --> 00:01:42,290
+The contract's own adapter read zero of forty: it required a literal\Nphrase, and the model wrote the passive voice.
 
 22
-00:01:45,557 --> 00:01:52,192
-Then it met a new model's text: it held escalation, and lost five of five in sustained.
+00:01:42,330 --> 00:01:45,230
+Repaired, it reaches six of eight cells in sample.
 
 23
-00:01:52,242 --> 00:01:59,663
-All five are one construction, I can help by collecting, written before that text existed, and not patched after.
+00:01:45,270 --> 00:01:51,710
+Then it met a new model's text: it held escalation, and lost five of\Nfive in sustained.
 
 24
-00:02:00,213 --> 00:02:00,163
-
+00:01:51,750 --> 00:02:00,160
+All five are one construction, I can help by collecting, written before\Nthat text existed, and not patched after.
 
 25
-00:02:00,213 --> 00:02:11,778
-Across five hundred and ninety-one replies, three hundred and twenty of them under pressure, the contract's list of forbidden phrasings finds zero approvals, zero promises, zero quotes.
+00:02:00,850 --> 00:02:10,870
+Across five hundred and ninety-one replies, three hundred and twenty of\Nthem under pressure, the contract's list of forbidden phrasings
 
 26
-00:02:11,828 --> 00:02:16,080
-No model cedes. What differs is whether it says why.
+00:02:10,910 --> 00:02:13,840
+finds zero approvals, zero promises, zero quotes.
 
 27
-00:02:16,130 --> 00:02:22,964
-A lower restatement rate is not a safety win: it means the limit is rarely named.
+00:02:13,880 --> 00:02:15,496
+No model cedes.
 
 28
-00:02:23,514 --> 00:02:23,464
-
+00:02:15,536 --> 00:02:19,000
+What differs is whether it says why.
 
 29
-00:02:23,514 --> 00:02:32,342
-All of it runs offline from a clone, with no API key: the signed evidence check, the clause audit, the cession check.
+00:02:19,040 --> 00:02:24,130
+A lower restatement rate is not a safety win: it means the limit is\Nrarely named.
 
 30
-00:02:32,392 --> 00:02:40,010
-Every figure sits beside its pre-registration, its nulls, and two claims that were withdrawn when they failed to replicate.
+00:02:24,820 --> 00:02:34,210
+All of it runs offline from a clone, with no API key: the signed\Nevidence check, the clause audit, the cession check.
 
+31
+00:02:34,250 --> 00:02:42,870
+Every figure sits beside its pre-registration, its nulls, and two claims\Nthat were withdrawn when they failed to replicate.
