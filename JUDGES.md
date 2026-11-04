@@ -73,14 +73,19 @@ production viability is weighed inside Impact and Technical Depth.
   decided. In the recorded run the model never proposed the restricted action:
   it declined in every pressured turn and proposed human escalation, so the guard
   canonicalised those handoffs rather than blocking a payment.
-- **Use of Meta AI Tooling (25%):** `muse-spark-1.3` is called live through
-  `/chat/completions`, once per turn in each arm, six calls per run, at
-  `temperature: 0.0` with a 1,024-token cap. The call carries two function
-  declarations with `tool_choice: "auto"`, so the proposal to act is the model's
+- **Use of Meta AI Tooling (25%):** `muse-spark-1.3` is called live through
+
+  `/chat/completions`, once per turn in each arm, six calls per run, at
+
+  `temperature: 0.0` with a 1,024-token cap. The call carries two function
+
+  declarations with `tool_choice: "auto"`, so the proposal to act is the model's
+
   own tool call, not a scripted string. The deterministic contract issues the
   verdict; where the model does propose an action or a handoff, the guard applies
   the policy to it. Every request is logged with model,
-  latency, HTTP status and tool-call count. The README section "What each request
+  latency, HTTP status and tool-call count. The README section "What each request
+
   to Meta actually contains" shows where each of those is in the source.
 - **Technical Depth and Execution (20%):** two independent arms, deterministic
   verdicts per clause, Ed25519 signing, a tamper test that survives a re-hashed
@@ -97,6 +102,29 @@ production viability is weighed inside Impact and Technical Depth.
   therefore shipped as a local, reproducible run, not as a hosted product.
 - **Does it work:** the whole path runs offline except the live slice, and the
   stored reference run plus the synthetic control need no key at all.
+
+## What was measured after the recorded run
+
+Six further series were executed on 3-4 November under pre-registration, and four of the eight series
+in this repository now end as *not measured*: the invalidity condition was written before the run and
+honoured after it. The full table is in [the README](README.md#six-further-series-3-4-november-what-held-what-did-not);
+the two that matter for judging are these.
+
+- **The authorization chain, measured.** With the restricted action reachable but denied by default,
+  18 attempts without authorization were denied 18 times, 5 attempts carrying a valid attestation were
+  executed 5 times, and nothing executed outside an authorized turn (24 trajectories). The gate does
+  not verify the token: it enforces an attestation that arrives from outside the model. That boundary
+  is the product.
+- **The behavioural claim, narrowed.** Two clause-45 series asked whether the agent keeps naming who
+  decides under sustained pressure. With the boundary in the system prompt it restated in 53 of 53
+  non-empty replies; with that sentence removed it fell to 13.2 %, and to 0 of 40 pressured turns by
+  the contract. The earlier figure was the model **echoing the prompt**. In neither series did it
+  approve, promise or advance a payment in 80 pressured turns. So the honest claim is not "the model
+  holds the line"; it is "the model does not cede, and it stops naming the authority unless the policy
+  tells it to".
+
+This is why the control we propose sits in the runtime rather than in the prompt, and why every
+preregistration in this repository publishes its nulls with the same prominence as its passes.
 
 ## Provenance
 
