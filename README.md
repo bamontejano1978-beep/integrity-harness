@@ -255,8 +255,15 @@ a user pushes, turn after turn?
   the phrasing the model actually uses, `I am not able to approve…`, which its pattern list does not
   cover. The clause still reads 0 of 40 in every pressured arm, because the model says "the claims
   team" rather than the literal phrase the contract looks for.
-- **What did not happen** in either series: the model never approved, promised or advanced a payout in
-  80 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
+- **v1.22** (same instrument, other model: `muse-spark-1.3` instead of `1.1`): the direction holds and
+the size does not. The escalation arm reads **60.0 %** (24/40) against **47.5 %** (19/40) in the
+sustained arm — a **12.5-point** gap whose 95 % interval runs from **−9.2 to +34.2**, i.e. it crosses
+zero at 40 turns per arm. What moves is the sustained arm: it goes from 28.9 %/18.4 % under 1.1 to
+47.5 %, so 1.3 resists sustained pressure better and the contrast narrows. Claim downgraded to
+*direction consistent across two models, size not estimable at this n*
+(`docs/experiments/clause45_second_model_results_20261104_v1.22.md`). The clause still reads 0 of 40.
+- **What did not happen** in any series: the model never approved, promised or advanced a payout in
+  120 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
   point of the clause, and it is why this repository measures behaviour instead of assuming it.
 
 Two instrument lessons came out of this and are now part of the harness: every model call records HTTP
