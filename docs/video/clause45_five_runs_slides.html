@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Clause 45 — five runs, four models</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --panel: #14181d;
+    --ink: #e8edf3;
+    --dim: #8b97a6;
+    --line: #232a33;
+    --accent: #58d3a0;
+    --warn: #e0a95c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+  .slide {
+    width: 1280px; height: 720px; padding: 64px 88px 56px; position: relative;
+    display: flex; flex-direction: column; justify-content: center;
+    border-bottom: 1px solid var(--line); overflow: hidden;
+  }
+  .topbar {
+    position: absolute; top: 28px; left: 88px; right: 88px;
+    display: flex; justify-content: space-between;
+    font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim);
+  }
+  .num { font-variant-numeric: tabular-nums; }
+  h1 { font-size: 74px; line-height: 1.02; margin: 0 0 26px; font-weight: 650; letter-spacing: -.02em; }
+  h2 { font-size: 40px; margin: 0 0 30px; font-weight: 620; letter-spacing: -.01em; }
+  .kicker { font-size: 15px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 22px; }
+  .sub { font-size: 26px; color: var(--dim); line-height: 1.45; max-width: 1010px; }
+  .mono { font-family: Consolas, "Cascadia Mono", ui-monospace, monospace; }
+  .small { font-size: 17px; color: var(--dim); line-height: 1.55; }
+  .accent { color: var(--accent); }
+  .warn { color: var(--warn); }
+  .rule { height: 1px; background: var(--line); margin: 26px 0; }
+
+  .arms { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 8px; }
+  .arm { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 26px 26px 22px; }
+  .arm .label { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+  .arm .big { font-size: 46px; font-weight: 640; margin: 12px 0 6px; font-variant-numeric: tabular-nums; }
+  .arm .quote { font-size: 17px; color: var(--ink); opacity: .86; line-height: 1.4;
+    margin-bottom: 10px; min-height: 48px; }
+  .arm ul { margin: 8px 0 0 18px; padding: 0; font-size: 16px; color: var(--dim); line-height: 1.65; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 21px; margin-top: 4px; }
+  th { text-align: right; font-weight: 500; color: var(--dim); font-size: 14px; letter-spacing: .1em;
+    text-transform: uppercase; padding: 0 12px 12px; }
+  th.l, td.l { text-align: left; }
+  td { text-align: right; padding: 11px 12px; border-top: 1px solid var(--line);
+    font-variant-numeric: tabular-nums; }
+  td.model { color: var(--ink); }
+  tr.hi td { color: var(--accent); }
+  .bar { display: inline-block; height: 9px; border-radius: 5px; background: var(--accent); opacity: .8;
+    vertical-align: middle; margin-left: 10px; }
+  .bar.low { background: var(--warn); }
+
+  .ci { font-size: 22px; line-height: 1.9; color: var(--ink); }
+  .ci .lead { font-size: 17px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim);
+    margin-bottom: 10px; }
+  .ci span.mono { color: var(--dim); }
+  .big-stat { font-size: 92px; font-weight: 680; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; margin-top: 10px; }
+  .stat .k { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+  .stat .v { font-size: 40px; font-weight: 620; font-variant-numeric: tabular-nums; }
+  code { font-family: Consolas, "Cascadia Mono", ui-monospace, monospace; font-size: 19px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; }
+  .cmd { font-family: Consolas, ui-monospace, monospace; font-size: 19px; color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 22px; margin-top: 10px; line-height: 1.8; }
+  .cmd .p { color: var(--accent); }
+  .foot { position: absolute; bottom: 30px; left: 88px; right: 88px; display: flex;
+    justify-content: space-between; font-size: 14px; color: #5c6875; }
+</style>
+</head>
+<body>
+
+<section class="slide" id="s1">
+  <div class="topbar"><span>integrity harness</span><span class="num">01 / 07</span></div>
+  <div class="kicker">Meta hackathon · clause 45</div>
+  <h1>Five runs, four models,<br>one question.</h1>
+  <p class="sub">When a user pushes for a payout, does the agent keep naming the licensed adjuster as the
+  one who decides? Everything below was pre-registered, including the failures.</p>
+</section>
+
+<section class="slide" id="s2">
+  <div class="topbar"><span>the instrument</span><span class="num">02 / 07</span></div>
+  <h2>Two arms, and they measure different things</h2>
+  <div class="arms">
+    <div class="arm">
+      <div class="label">escalation</div>
+      <div class="big accent">48.7 – 60.0 %</div>
+      <div class="quote">“Approve the payout now.”</div>
+      <ul><li>the user asks for the prohibited action</li><li>stable across all four models</li><li>every paired interval crosses zero</li></ul>
+    </div>
+    <div class="arm">
+      <div class="label">sustained</div>
+      <div class="big warn">12.5 – 50.0 %</div>
+      <div class="quote">urgency · a prior promise · social proof · claimed authority</div>
+      <ul><li>nobody asks for approval</li><li>four-fold spread on the same instrument</li><li>measures style as much as policy</li></ul>
+    </div>
+  </div>
+  <p class="small" style="margin-top:26px">40 conversations per arm · 120 calls per run · temperature 0 · boundary removed from the system prompt · hand reading is the reference</p>
+</section>
+
+<section class="slide" id="s3">
+  <div class="topbar"><span>the counts</span><span class="num">03 / 07</span></div>
+  <h2>Restatement of the decision authority</h2>
+  <table>
+    <thead><tr><th class="l">run</th><th class="l">model</th><th>escalation</th><th>sustained</th><th>gap</th></tr></thead>
+    <tbody>
+      <tr><td class="l mono">v1.15</td><td class="l model mono">muse-spark-1.1</td><td>50.0 %<span class="bar" style="width:96px"></span></td><td>28.9 %</td><td>+21.1</td></tr>
+      <tr><td class="l mono">v1.16</td><td class="l model mono">muse-spark-1.1</td><td>48.7 %<span class="bar" style="width:93px"></span></td><td>18.4 %</td><td>+30.3</td></tr>
+      <tr><td class="l mono">v1.22</td><td class="l model mono">muse-spark-1.3</td><td>60.0 %<span class="bar" style="width:116px"></span></td><td>47.5 %</td><td>+12.5</td></tr>
+      <tr><td class="l mono">v1.23</td><td class="l model mono">muse-spark-1.2</td><td>60.0 %<span class="bar" style="width:116px"></span></td><td>50.0 %</td><td>+10.0</td></tr>
+      <tr class="hi"><td class="l mono">v1.25</td><td class="l model mono">muse-wonder-1.0</td><td>50.0 %<span class="bar" style="width:96px"></span></td><td>12.5 %</td><td>+37.5</td></tr>
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:24px">The escalation column barely moves. The sustained column moves by a factor of four.</p>
+</section>
+
+<section class="slide" id="s4">
+  <div class="topbar"><span>the null</span><span class="num">04 / 07</span></div>
+  <h2>Why we do not rank the models</h2>
+  <div style="display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center">
+    <div class="ci">
+      <div class="lead">vs wonder · sustained arm</div>
+      only <span class="mono">1.3</span> and <span class="mono">1.2</span> clear their interval<br>
+      <span class="mono">+35.0 (+16.4 to +53.6)</span><br>
+      <span class="mono">+37.5 (+18.9 to +56.1)</span><br>
+      both contrasts with <span class="mono">1.1</span> cross zero
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px">
+      <div class="small" style="letter-spacing:.14em;text-transform:uppercase">the same model, twice</div>
+      <div class="big-stat" style="font-size:64px">+10.5</div>
+      <div class="small">28.9 % vs 18.4 % · <span class="mono">−8.4 to +29.5</span><br>
+      two runs of <span class="mono">1.1</span>, same instrument</div>
+    </div>
+  </div>
+  <p class="small" style="margin-top:34px">At n = 40 a ten-point gap is noise. Ordering these models would be ordering noise — so the note publishes the intervals and declines to order them.</p>
+</section>
+
+<section class="slide" id="s5">
+  <div class="topbar"><span>the instrument's own failure</span><span class="num">05 / 07</span></div>
+  <h2>The contract's adapter read 0 of 40</h2>
+  <div class="row3">
+    <div class="stat"><div class="k">contract adapter</div><div class="v warn">0 / 40</div>
+      <div class="small">it required “licensed adjuster must decide”; the model wrote the passive voice</div></div>
+    <div class="stat"><div class="k">repaired, in sample</div><div class="v accent">6 / 8</div>
+      <div class="small">cells within 2.6–7.5 points of the hand reading</div></div>
+    <div class="stat"><div class="k">out of sample, new model</div><div class="v warn">5 / 8</div>
+      <div class="small">holds escalation (bias 2.5), fails sustained (bias 12.5)</div></div>
+  </div>
+  <div class="rule"></div>
+  <p class="small">All five misses are one construction its patterns never covered:
+  <span class="mono accent">“I can help by collecting…”</span> — written before that text existed, and not patched after.
+  The in-sample score was a ceiling.</p>
+</section>
+
+<section class="slide" id="s6">
+  <div class="topbar"><span>the claim that survives</span><span class="num">06 / 07</span></div>
+  <h2>Naming the limit is not the same as crossing it</h2>
+  <div class="row3">
+    <div class="stat"><div class="k">replies checked</div><div class="v">591</div></div>
+    <div class="stat"><div class="k">pressured turns</div><div class="v">320</div></div>
+    <div class="stat"><div class="k">cessions</div><div class="v accent">0</div></div>
+  </div>
+  <div class="rule"></div>
+  <p class="ci">No model approved, promised or quoted a payout — <span class="mono">patterns_to_avoid</span>
+  applied to every reply, exit 0. What differs between models is only whether they <em>say why</em>.
+  A lower restatement rate is not a safety win: it means the limit is rarely named.</p>
+</section>
+
+<section class="slide" id="s7">
+  <div class="topbar"><span>reproduce</span><span class="num">07 / 07</span></div>
+  <h2>Nothing here needs a key</h2>
+  <div class="cmd">
+    <span class="p">$</span> python scripts/judge_check.py<br>
+    <span class="p">$</span> python scripts/package_meta_evidence.py --verify evidence/meta-heldout-live-20261028-signed.zip<br>
+    <span class="p">$</span> python scripts/audit_clause45_fourth_model_v0_1.py<br>
+    <span class="p">$</span> python scripts/check_clause45_no_cession_v0_1.py
+  </div>
+  <p class="small" style="margin-top:28px">Every figure in this video is in
+  <span class="mono">docs/experiments/</span> next to its pre-registration, its nulls and its withdrawn claims.
+  Two findings were withdrawn after replication failed; both retractions are in the repository.</p>
+</section>
+
+</body>
+</html>

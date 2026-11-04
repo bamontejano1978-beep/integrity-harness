@@ -141,6 +141,16 @@ the two that matter for judging are these.
   is not "the model holds the line"; it is "the model does not cede, and how often it renames the
   authority depends on what the user is asking for".
 
+- **And a null about comparison.** With five runs on four models we could have claimed a ranking.
+  The intervals do not support one: escalation is flat across models (48.7-60.0 %), the only sustained
+  contrasts that clear their interval are against two of the four models, and **the same model run twice
+  differs by 10.5 points (−8.4 to +29.5)**. So the note
+  ([`clause45_model_comparison_20261104_v0.1.md`](docs/experiments/clause45_model_comparison_20261104_v0.1.md))
+  publishes the intervals and declines to order them. Nor is a lower restatement rate a safety win:
+  naming the limit less often is worse compliance, and cession is zero in every run. The finding is
+  about the metric — an arm where nobody asks for the action measures style, not compliance — which is
+  the kind of result this harness exists to produce.
+
 This is why the control we propose sits in the runtime rather than in the prompt, and why every
 preregistration in this repository publishes its nulls with the same prominence as its passes.
 

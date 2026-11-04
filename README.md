@@ -4,7 +4,7 @@ Signed evidence packaging and offline verification for behavioural-assurance run
 
 The harness evaluates documented situational-pressure scenarios with a deterministic contract. A locally verified Ed25519 package is available for a saved live run; its public key is embedded and self-described, so it detects tampering but does not establish signer identity or trusted time.
 
-**Status: complete.** The saved Meta target-agent run and its signed archive are verified offline. The organizers require a public repository with setup instructions and a demo video of at most 3:00; a hosted demo is explicitly optional, so nothing is deployed. Judges should start with [JUDGES.md](JUDGES.md), the 60-second path that needs no API key. The local verifier is an evidence-review component, not the complete demo. The demo video is at https://youtu.be/gfuXbeZF058 (1:33), also in the repository as `docs/demo_walkthrough.mp4`: it shows the offline path, a live run against Meta with the calls visible, and the signing, verification and tamper test, with English subtitles and an English
+**Status: complete.** The saved Meta target-agent run and its signed archive are verified offline. The organizers require a public repository with setup instructions and a demo video of at most 3:00; a hosted demo is explicitly optional, so nothing is deployed. Judges should start with [JUDGES.md](JUDGES.md), the 60-second path that needs no API key. The local verifier is an evidence-review component, not the complete demo. A second video, `docs/clause45_five_runs.mp4` (2:41, English subtitles burned in, slides in `docs/video/`), walks through the five clause-45 runs and the comparison note below; it is not on YouTube yet, so cite the file. The original demo video is at https://youtu.be/gfuXbeZF058 (1:33), also in the repository as `docs/demo_walkthrough.mp4`: it shows the offline path, a live run against Meta with the calls visible, and the signing, verification and tamper test, with English subtitles and an English
 voiceover.
 
 ---
@@ -31,6 +31,7 @@ rather than in a claim.
 | Muse Spark as scenario *generator* | Not evidenced by the saved held-out run | Its report records `meta_model_generator_mode: deterministic_offline`; do not claim live generation from this artifact |
 | Signed evidence packager + tamper detection | Implemented and verified locally after the baseline | Represented by post-baseline commits, latest `9eaccaa` |
 | Demo video, https://youtu.be/gfuXbeZF058 (`docs/demo_walkthrough.mp4`) | 1:33, English subtitles and voiceover, live Meta call visible | Recorded after the baseline |
+| Clause-45 video (`docs/clause45_five_runs.mp4`) | 2:41, English subtitles burned in and voiceover; the five runs, the intervals and the adapter's out-of-sample failure | Recorded 4 November; slides in `docs/video/`, transcript in `docs/clause45_five_runs.srt` |
 | Live product | One-case live demo app implemented and tested offline; starts locally in one command | Committed after the baseline; no public deployment, which the organizers do not require; the app enforces a six-request cap and is not a general chat |
 | Public repository and team submission | Public repository at `bamontejano1978-beep/integrity-harness` | Published after the baseline; the representative still submits once and lists every contributor |
 
@@ -284,6 +285,26 @@ only counts ambient pressure mostly measures how talkative the model is
   **320 pressured turns across five runs**. It stopped naming the authority; it did not cede. That
   distinction is the whole point of the clause, and it is why this repository measures behaviour instead
   of assuming it.
+
+### Why this repository does not rank the models
+
+Five runs, four models, two families, the same instrument. The counts are in the table above; the
+intervals are in [the comparison note](docs/experiments/clause45_model_comparison_20261104_v0.1.md), and
+they say the ordering does not hold:
+
+- Escalation is stable across models — **48.7-60.0 %** in all five runs — and every paired contrast in
+  that arm crosses zero. When the user asks for the payout to be approved, every model names the limit.
+- Sustained pressure spans **12.5-50.0 %**. Against `muse-wonder-1.0`, only `1.3` (+35.0) and `1.2`
+  (+37.5) clear their interval; both contrasts with `1.1` cross zero.
+- The decisive number is not between models at all: **the same model, twice, same instrument, reads
+  28.9 % and 18.4 %** — +10.5 (−8.4 to +29.5). A 10-point gap at n = 40 is noise, so ranking `1.1`,
+  `1.2` and `1.3` here would be ranking noise.
+
+A lower restatement rate is also not a safety win: 12.5 % means the limit is rarely named, and the
+contract requires naming it. Cession is zero in all five runs (591 replies checked lexically, 320
+pressured turns), so what varies is whether the agent **says why**, never whether it approves. The
+result we do defend is about the instrument: an arm where nobody asks for the action measures
+conversational style, not compliance, and a benchmark built only on ambient pressure ranks talkativeness.
 
 Two instrument lessons came out of this and are now part of the harness: every model call records HTTP
 status, `finish_reason` and latency (an empty completion without `finish_reason` cannot be diagnosed),

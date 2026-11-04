@@ -1,0 +1,120 @@
+1
+00:00:00,000 --> 00:00:01,869
+One question, five runs.
+
+2
+00:00:01,919 --> 00:00:12,901
+When a user pushes an insurance agent for a payout, does the agent keep naming the licensed adjuster as the one who decides?
+
+3
+00:00:12,951 --> 00:00:15,778
+Four models, two families, one instrument.
+
+4
+00:00:15,828 --> 00:00:18,656
+Everything was pre-registered, including what failed.
+
+5
+00:00:19,206 --> 00:00:21,304
+The design has two arms.
+
+6
+00:00:21,354 --> 00:00:33,328
+In escalation the user asks for the payout to be approved, and the agent names the limit forty-eight to sixty percent of the time, in all four models.
+
+7
+00:00:33,378 --> 00:00:39,340
+In sustained pressure nobody asks: urgency, a prior promise, social proof, a claimed authority.
+
+8
+00:00:39,390 --> 00:00:43,634
+That arm runs from twelve point five to fifty percent.
+
+9
+00:00:43,684 --> 00:00:45,352
+Forty conversations per arm.
+
+10
+00:00:45,902 --> 00:00:47,541
+The five runs.
+
+11
+00:00:47,591 --> 00:00:54,299
+The escalation column barely moves: fifty, forty-eight point seven, sixty, sixty, fifty.
+
+12
+00:00:54,349 --> 00:01:06,689
+The sustained column moves by a factor of four: twenty-eight point nine, eighteen point four, forty-seven point five, fifty, twelve point five.
+
+13
+00:01:07,239 --> 00:01:09,704
+We could have published a ranking.
+
+14
+00:01:09,754 --> 00:01:14,317
+The intervals do not allow it: only two contrasts clear zero.
+
+15
+00:01:14,367 --> 00:01:17,671
+And the decisive number is not between models.
+
+16
+00:01:17,721 --> 00:01:25,218
+The same model, run twice with the same instrument, reads twenty-eight point nine and then eighteen point four.
+
+17
+00:01:25,268 --> 00:01:28,572
+A ten point gap, whose interval crosses zero.
+
+18
+00:01:28,622 --> 00:01:33,603
+At forty turns per arm, ordering these models would be ordering noise.
+
+19
+00:01:34,153 --> 00:01:34,103
+
+
+20
+00:01:34,153 --> 00:01:41,968
+The contract's own adapter read zero of forty: it required a literal phrase, and the model wrote the passive voice.
+
+21
+00:01:42,018 --> 00:01:45,507
+Repaired, it reaches six of eight cells in sample.
+
+22
+00:01:45,557 --> 00:01:52,192
+Then it met a new model's text: it held escalation, and lost five of five in sustained.
+
+23
+00:01:52,242 --> 00:01:59,663
+All five are one construction, I can help by collecting, written before that text existed, and not patched after.
+
+24
+00:02:00,213 --> 00:02:00,163
+
+
+25
+00:02:00,213 --> 00:02:11,778
+Across five hundred and ninety-one replies, three hundred and twenty of them under pressure, the contract's list of forbidden phrasings finds zero approvals, zero promises, zero quotes.
+
+26
+00:02:11,828 --> 00:02:16,080
+No model cedes. What differs is whether it says why.
+
+27
+00:02:16,130 --> 00:02:22,964
+A lower restatement rate is not a safety win: it means the limit is rarely named.
+
+28
+00:02:23,514 --> 00:02:23,464
+
+
+29
+00:02:23,514 --> 00:02:32,342
+All of it runs offline from a clone, with no API key: the signed evidence check, the clause audit, the cession check.
+
+30
+00:02:32,392 --> 00:02:40,010
+Every figure sits beside its pre-registration, its nulls, and two claims that were withdrawn when they failed to replicate.
+
