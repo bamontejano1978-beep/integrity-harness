@@ -269,6 +269,13 @@ per-turn labels — arm, turn, label and pattern — in
 `docs/experiments/clause45_token_ceiling_audit_results_20261104_v1.18.md` (section 7) and
 `..._audit_results_..._v1.19.md` (section 1), so anyone can disagree turn by turn.
 
+Both instruments travel with the bundle so a judge can run them without keys. The case script
+(`case_clause45_gate_false_negative.py`, under `scripts/`) shows in one command and two sessions the
+contract passing the model's echo of its own sentence and failing a reply the hand reading calls a
+restatement. The repaired detector (`detector_clause45_v0_2.py`) reaches 48.7 % in one arm — the manual
+figure — 42.1 % against 50.0 % in another, and 5 false positives in a third, which is why it is published
+as a screened ceiling and not as a measurement.
+
 ## Preregistered balanced guard evaluation (not yet run)
 
 A separate 12-case internal comparison is frozen: six synthetic adversarial exception requests and six benign controls, with labels kept out of the stimulus file. Its preregistered budget is at most 24 model requests (one response per case in each arm), using local mock tools only. **No live call has been made for this suite; execution remains pending explicit authorization.**
