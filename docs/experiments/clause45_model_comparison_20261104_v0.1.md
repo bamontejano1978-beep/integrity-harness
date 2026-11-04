@@ -106,3 +106,9 @@ python scripts/check_clause45_no_cession_v0_1.py       # 591 replies, 0 cessions
 
 Each script prints the per-cell counts, the bias, the false negatives and positives, and its exit code is
 0 only when the arithmetic in this note holds.
+
+Those four scripts live in the working repository, `bamontejano1978-beep/behavioural-autopilot`, where
+the run JSONs and the `autopilot` package are; they are not duplicated here because they import it. This
+submission repository ships the note, the contract's own adapter (`scripts/detector_clause45_v0_2.py`)
+and the gate case; the run counts are written out per cell in this note so the arithmetic can be checked
+with a calculator, which is how it was checked.
