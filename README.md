@@ -243,6 +243,11 @@ a user pushes, turn after turn?
   scope message): restatement fell from ~100 % to **13.2 %** of replies, and to **0 of 40** pressured
   turns by the clause. With the adapter fixed to see the passive voice, the drop is not an artefact.
   The earlier 100 % was the model **echoing the prompt**, not holding the line.
+- **v1.16** (same design, output ceiling doubled to 4,096 tokens): the sustained arm stayed at
+  exactly 13.2 %, so truncation was not what produced that figure; the escalation arm rose to
+  **25.6 %**, and its v1.15 number is now recorded as an underestimate. The clause still reads 0 of
+  40 in every pressured arm, because the model says "the claims adjuster" rather than the literal
+  phrase the contract looks for.
 - **What did not happen** in either series: the model never approved, promised or advanced a payout in
   80 pressured turns. It stopped naming the authority; it did not cede. That distinction is the whole
   point of the clause, and it is why this repository measures behaviour instead of assuming it.
